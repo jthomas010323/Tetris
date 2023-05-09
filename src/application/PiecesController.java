@@ -1,10 +1,6 @@
 package application;
 
-import java.util.ArrayList;
-import javafx.animation.RotateTransition;
-import javafx.scene.Node;
 import javafx.scene.shape.Rectangle;
-import javafx.util.Duration;
 
 //Controls the pieces
 //Rotations
@@ -18,29 +14,133 @@ public class PiecesController {
     static final int BOARD_HEIGHT = Tetris.BOARD_HEIGHT;
     static final int CELL_SIZE = Tetris.CELL_SIZE;
 
-    void Rotate_Clockwise(Tetromino Tetromino ){
+    boolean Rotate_Clockwise(Tetromino Tetromino, Board gameBoard ){
+    	
+    	if(Tetromino == null) {
+    		return false;
+    	}
+    	
     	Tetromino.rotate();
+    	
+		return false;
+    	
     }
     
-    void Move_Left(Tetromino Tetromino){
-    	for(Rectangle rect : Tetromino.getPoints()) {
-    		rect.setX(rect.getX() - BLOCK_SIZE);
+    public boolean Move_Down(Tetromino Tetromino, Board gameBoard) {
+        
+    	if(Tetromino == null) {
+    		return false;
     	}
+    	
+        boolean canMoveDown = true;
+        
+        for(Rectangle rect : Tetromino.getPoints()) {
+            int newY = (int) (rect.getY() + BLOCK_SIZE);
+            
+            Rectangle newPos = new Rectangle(rect.getX(), newY, BLOCK_SIZE, BLOCK_SIZE);
+            
+            if (!gameBoard.isInBounds(newPos)) {
+                canMoveDown = false;
+                break;
+            }
+        }
+
+        if (canMoveDown) {
+        	
+            for (Rectangle rect : Tetromino.getPoints()) {
+                int newY = (int) (rect.getY() + BLOCK_SIZE);
+                rect.setY(newY);
+            }
+            
+            return true;
+        }else {
+    		return false;
+        }
+        
     }
-    
-    void Move_Right(Tetromino Tetromino){
-    	for(Rectangle rect : Tetromino.getPoints()) {
-    		rect.setX(rect.getX() + BLOCK_SIZE);
+
+
+    /*
+     *Move shape left 
+     */
+    boolean Move_Left(Tetromino Tetromino, Board gameBoard){
+    	
+    	/*
+    	 * Create copy of the location of the current Tetromino
+    	 * Perform movement operations
+    	 * Check if its legal
+    	 * if legal, set the current Tetromino to the updated location
+    	 * if not legal, current Tetromino remains the same position
+    	 */
+    	
+    	int newX;
+    	
+    	if(Tetromino == null) {
+    		return false;
     	}
+    	
+        boolean canMoveLeft = true;
+        
+        for(Rectangle rect : Tetromino.getPoints()) {
+            newX = (int) (rect.getX() - BLOCK_SIZE);
+            
+            Rectangle newPos = new Rectangle(newX, rect.getY(), BLOCK_SIZE, BLOCK_SIZE);
+            
+            if (!gameBoard.isInBounds(newPos)) {
+            	canMoveLeft = false;
+                break;
+            }
+        }
+
+        if (canMoveLeft) {
+        	
+            for (Rectangle rect : Tetromino.getPoints()) {
+                newX = (int) (rect.getX() - BLOCK_SIZE);
+                rect.setX(newX);
+            }
+            
+            return true;
+        }else {
+    		return false;
+        }
     }
     
-    void MOVE_UP(Tetromino Tetromino) {
-    	for(Rectangle rect : Tetromino.getPoints()) {
-    		rect.setY(rect.getY() - BLOCK_SIZE);
+    /*
+     * Move shape right
+     */
+    boolean Move_Right(Tetromino Tetromino, Board gameBoard){
+    	
+    	int newX;
+    	
+    	if(Tetromino == null) {
+    		return false;
     	}
+    	
+        boolean canMoveRight = true;
+        
+        for(Rectangle rect : Tetromino.getPoints()) {
+            newX = (int) (rect.getX() + BLOCK_SIZE);
+            
+            Rectangle newPos = new Rectangle(newX, rect.getY(), BLOCK_SIZE, BLOCK_SIZE);
+            
+            if (!gameBoard.isInBounds(newPos)) {
+            	canMoveRight = false;
+                break;
+            }
+        }
+
+        if (canMoveRight) {
+        	
+            for (Rectangle rect : Tetromino.getPoints()) {
+                newX = (int) (rect.getX() + BLOCK_SIZE);
+                rect.setX(newX);
+            }
+            
+            return true;
+        }else {
+    		return false;
+        }
+
     }
-    
-    
-    
-    
+
 }

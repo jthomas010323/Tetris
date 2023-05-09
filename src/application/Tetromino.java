@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-//Shapes provides a template to each unique Tetromino
-//Each Tetromino will have their own rotate and offset values
+//Tetromino provides a template to each unique shape
+//Each shape will have their own unique rotation and color
 
 public abstract class Tetromino {
 	private ArrayList<Rectangle> Points;
@@ -16,8 +16,8 @@ public abstract class Tetromino {
 	private Rectangle d;
 	private Color color;
 	protected int Rotation_Index;
-	
-	   Tetromino(Color color) {
+		
+		Tetromino(Color color) {
 	        Points = new ArrayList<Rectangle>();
 
 	        a = new Rectangle(0, 0, Tetris.BLOCK_SIZE, Tetris.BLOCK_SIZE);
@@ -29,11 +29,10 @@ public abstract class Tetromino {
 	        Points.add(b);
 	        Points.add(c);
 	        Points.add(d);
+	        
 	        Rotation_Index = 0;
 	        this.color = color;
-
-	  
-	        
+      
 	       // Set the color of each rectangle
 	       for (Rectangle rect : Points) {
 	       rect.setFill(color);

@@ -4,6 +4,7 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -30,7 +31,6 @@ public class Tetris extends Application {
     private AnimationTimer gameLoop;
 
     private Tetromino currentTetromino;
-    private Tetromino nextShape;
     private Board gameBoard;
     private PiecesController Pieces_Controller = new PiecesController();
 
@@ -51,41 +51,71 @@ public class Tetris extends Application {
             Pane boardPane = gameBoard.createBoardPane();
             gamePane.getChildren().add(boardPane);
             
+            //Handle keyboard inputs
+            gameScene.setOnKeyPressed(event -> {
+                KeyCode keyCode = event.getCode();
+                if (keyCode == KeyCode.LEFT) {
+                	Pieces_Controller.Move_Left(currentTetromino, gameBoard);
+                } else if (keyCode == KeyCode.RIGHT) {
+                	Pieces_Controller.Move_Right(currentTetromino, gameBoard);
+                } else if (keyCode == KeyCode.DOWN) {
+                	Pieces_Controller.Move_Down(currentTetromino, gameBoard);
+                } else if (keyCode == KeyCode.UP || keyCode == KeyCode.Z){
+                	Pieces_Controller.Rotate_Clockwise(currentTetromino, gameBoard);
+                }
+            });
+            
             gameLoop = new AnimationTimer() {
             //start game loop
                 private long lastUpdate = 0;
 
 				@Override
 				public void handle(long now) {
-					   // Only update the game state at a fixed interval (in nanoseconds)
-	                if (now - lastUpdate >= 500_000_000) {
-						gameBoard.MOVE_DOWN(currentTetromino);
-						Pieces_Controller.Rotate_Clockwise(currentTetromino);
-						
-					     for (Rectangle block : currentTetromino.getPoints()) {
-				            	System.out.println("Block at " + block.getX()/BLOCK_SIZE + "," + block.getY()/BLOCK_SIZE + " " + currentTetromino.getColor());
-				            }
-				         gameBoard.PrintBoard();
+				    // Only update the game state at a fixed interval (in nanoseconds)
+				    if (now - lastUpdate >= 500_000_000) {
+				        
+				    	if (Pieces_Controller.Move_Down(currentTetromino, gameBoard)) {
+				            // Tetromino can move down, so move it down
 
-	                    lastUpdate = now;
-	                }
-	                
-	            }
-				
+				    	} else {
+				            // Tetromino cannot move down, so place it on the board and spawn a new one
+				            gameBoard.placeShape(currentTetromino);
+				            gameBoard.setBoard();
+				            
+				            gameBoard.clearFullRows();
+				            
+				            //Tetromino is assigned to a new block
+				            currentTetromino = spawnTetromino();
+				            
+				            //Add new tetromino to blockGroups
+				            for (Rectangle block : currentTetromino.getPoints()) {
+				            	System.out.println("Spawned block at " + block.getX() + "," + block.getY() + " " + currentTetromino.getColor());
+				                blocksGroup.getChildren().add(block);
+				            }
+				        }
+
+				        // Debugging information
+				        for (Rectangle block : currentTetromino.getPoints()) {
+				            System.out.println("Block at " + block.getX() / BLOCK_SIZE + "," + block.getY() / BLOCK_SIZE + " " + currentTetromino.getColor());
+				        }
+				        
+				        gameBoard.PrintBoard();
+
+				        lastUpdate = now;
+				    }
+				}
+
             };
             
             gameLoop.start();
-            
-            //Add Tetromino to board
+
+            //Add first piece to board
             for (Rectangle block : currentTetromino.getPoints()) {
             	System.out.println("Spawned block at " + block.getX() + "," + block.getY() + " " + currentTetromino.getColor());
                 blocksGroup.getChildren().add(block);
             }
-            
-            //Print the board state to console
-            gameBoard.PrintBoard();
+       
          
-            
             gamePane.setStyle("-fx-background-color: gray;");
             
             primaryStage.setScene(gameScene);
