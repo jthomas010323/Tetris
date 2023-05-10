@@ -6,12 +6,14 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Tetris extends Application {
@@ -34,6 +36,7 @@ public class Tetris extends Application {
     private Board gameBoard;
     private PiecesController Pieces_Controller = new PiecesController();
 
+    private boolean paused = false;
     public static void main(String[] args) {
         launch(args);
     }
@@ -48,8 +51,7 @@ public class Tetris extends Application {
             
             //Create a board
             gameBoard = createBoard();
-            Pane boardPane = gameBoard.createBoardPane();
-            gamePane.getChildren().add(boardPane);
+            gamePane.getChildren().add(gameBoard.getBoardPane());
             
             //Handle keyboard inputs
             gameScene.setOnKeyPressed(event -> {
@@ -58,10 +60,12 @@ public class Tetris extends Application {
                 	Pieces_Controller.Move_Left(currentTetromino, gameBoard);
                 } else if (keyCode == KeyCode.RIGHT) {
                 	Pieces_Controller.Move_Right(currentTetromino, gameBoard);
-                } else if (keyCode == KeyCode.DOWN) {
+                } else if (keyCode == KeyCode.DOWN || keyCode == KeyCode.SPACE) {
                 	Pieces_Controller.Move_Down(currentTetromino, gameBoard);
                 } else if (keyCode == KeyCode.UP || keyCode == KeyCode.Z){
                 	Pieces_Controller.Rotate_Clockwise(currentTetromino, gameBoard);
+                }else if(keyCode == KeyCode.ESCAPE) {
+                	paused = !paused;
                 }
             });
             
@@ -74,33 +78,37 @@ public class Tetris extends Application {
 				    // Only update the game state at a fixed interval (in nanoseconds)
 				    if (now - lastUpdate >= 500_000_000) {
 				        
+				    	if(paused) {
+				    		return;
+				    	}
+				    	
 				    	if (Pieces_Controller.Move_Down(currentTetromino, gameBoard)) {
 				            // Tetromino can move down, so move it down
 
 				    	} else {
 				            // Tetromino cannot move down, so place it on the board and spawn a new one
-				            gameBoard.placeShape(currentTetromino);
-				            gameBoard.setBoard();
+				            gameBoard.placeShape(currentTetromino); //Add shape to the ArrayList of placed shapes
 				            
-				            gameBoard.clearFullRows();
+				            System.out.println("Before clearing");
+					        gameBoard.PrintBoard();
+
+				            gameBoard.clearFullRows(blocksGroup);// Check and clear full rows
+				            System.out.println("After clearing");
+					        gameBoard.PrintBoard();
+
+				            if(gameBoard.isGameOver()) {
+				            	gameLoop.stop();
+				            }
 				            
 				            //Tetromino is assigned to a new block
 				            currentTetromino = spawnTetromino();
 				            
 				            //Add new tetromino to blockGroups
 				            for (Rectangle block : currentTetromino.getPoints()) {
-				            	System.out.println("Spawned block at " + block.getX() + "," + block.getY() + " " + currentTetromino.getColor());
 				                blocksGroup.getChildren().add(block);
 				            }
 				        }
-
-				        // Debugging information
-				        for (Rectangle block : currentTetromino.getPoints()) {
-				            System.out.println("Block at " + block.getX() / BLOCK_SIZE + "," + block.getY() / BLOCK_SIZE + " " + currentTetromino.getColor());
-				        }
 				        
-				        gameBoard.PrintBoard();
-
 				        lastUpdate = now;
 				    }
 				}
@@ -111,7 +119,6 @@ public class Tetris extends Application {
 
             //Add first piece to board
             for (Rectangle block : currentTetromino.getPoints()) {
-            	System.out.println("Spawned block at " + block.getX() + "," + block.getY() + " " + currentTetromino.getColor());
                 blocksGroup.getChildren().add(block);
             }
        
@@ -184,6 +191,8 @@ public class Tetris extends Application {
 
     public static Board createBoard() {
         Board gameBoard = new Board(NUM_ROW, NUM_COL);
+        gameBoard.createBoardPane();
+        
         
         return gameBoard;
     }

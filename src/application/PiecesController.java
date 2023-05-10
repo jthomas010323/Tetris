@@ -13,19 +13,24 @@ public class PiecesController {
     static final int BOARD_WIDTH = Tetris.BOARD_WIDTH;
     static final int BOARD_HEIGHT = Tetris.BOARD_HEIGHT;
     static final int CELL_SIZE = Tetris.CELL_SIZE;
-
-    boolean Rotate_Clockwise(Tetromino Tetromino, Board gameBoard ){
-    	
-    	if(Tetromino == null) {
-    		return false;
-    	}
-    	
-    	Tetromino.rotate();
-    	
-		return false;
-    	
-    }
     
+    /*
+     * Rotates the current block
+     */
+    boolean Rotate_Clockwise(Tetromino tetromino, Board gameBoard) {
+        if (tetromino == null) {
+            return false;
+        }
+        
+        tetromino.rotate();
+        
+        return true;
+       
+    }
+
+    /*
+     * Move shape down
+     */
     public boolean Move_Down(Tetromino Tetromino, Board gameBoard) {
         
     	if(Tetromino == null) {

@@ -11,7 +11,7 @@ public class TetrominoI extends Tetromino {
 
 	TetrominoI(Color color) {
 		super(color);
-		//  abcd
+		//abcd
 		//calculated spawn position
 		super.getRectA().setX(BOARD_WIDTH / 2 - BLOCK_SIZE * 2);
 		super.getRectB().setX(BOARD_WIDTH / 2 - BLOCK_SIZE);

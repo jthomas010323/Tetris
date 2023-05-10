@@ -2,22 +2,24 @@ package application;
 
 import java.util.ArrayList;
 
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.paint.Color;
 
 //The Board class has several jobs including:
-//Creates grid
+//Creating the 2d matrix grid
 //Tracks the location of all existing pieces
-//checks for line clears
-//clears lines
-
+//Detect collision with the borders or with another block
+//Check and clear lines
 
 public class Board {
+	
 	static final int NUM_ROW = 24;
 	static final int NUM_COL = 12;
 	
+	//individual block size as it appears on the screen
     static final int BLOCK_SIZE = 25;
     static final int BOARD_WIDTH = BLOCK_SIZE * NUM_COL;
     static final int BOARD_HEIGHT = BLOCK_SIZE * NUM_ROW;
@@ -29,19 +31,29 @@ public class Board {
 	private int score;
 	private int[][] Board;
 	private boolean gameOver;
-	private ArrayList<Tetromino> Points_Collection;
-
+	private ArrayList<Rectangle> Points_Collection;
+	private Pane boardPane;
+	
 	Board(int NUM_ROW, int NUM_COL){
 		row = NUM_ROW;
 		col = NUM_COL;
 		
-		Points_Collection = new ArrayList<Tetromino>();
+		Points_Collection = new ArrayList<Rectangle>();
 		this.Board = new int[row][col];
-		score = 0;
-		gameOver = false;
+		setScore(0);
+		setGameOver(false);
+		
+		   
+        for(int row = 0; row < NUM_ROW; row++) {
+        	for(int col = 0; col < NUM_COL; col++) {
+        		Board[row][col] = 0;
+        	}
+        	
+        }
 	}
 	
 	/*
+	 * PlaceShape works in tandem with setBoard()
 	 * The board should only place a block when it is at the bottom of the board
 	 * or if the block directly under it is another block
 	 * 
@@ -54,66 +66,109 @@ public class Board {
 		if(tetromino == null)
 			return false;
 		
-	    Points_Collection.add(tetromino);
+	for(Rectangle rect : tetromino.getPoints()) {
+		
+	    Points_Collection.add(rect);
+
+	}
 		setBoard();
 		
 	    return true;
 	}
 	
 	/*
-	 * 
+	 * After the piece has been placed on the grid,
+	 * The location will be marked as occupied with a 1
 	 */
 	public void setBoard() {
 		
-		for(Tetromino shape : Points_Collection) {
-			for(Rectangle rect : shape.getPoints()) {
+		for(Rectangle rect : Points_Collection) {
 				int converted_X = (int) (rect.getX()/Tetris.BLOCK_SIZE);
 				int converted_Y = (int) (rect.getY()/Tetris.BLOCK_SIZE);
 				
-				System.out.println("Setting at " + converted_Y + ","+ converted_X);
 				Board[converted_Y][converted_X] = 1;
-			}
+			
 		}
 		
+	}
+	
+	public void checkGameOver() {
+		for(Rectangle rect: Points_Collection) {
+			int converted_Y = (int) (rect.getY()/Tetris.BLOCK_SIZE);
+
+			if(converted_Y <= 0){
+				gameOver = true;
+			}
+		}
 	}
 
 	/*
 	 * Checks if an entire row is filled up 
 	 * if the row is filled up, clear the row by setting the entire row to 0 and shifting everything down 
 	 */
-	public int clearFullRows() {
+	public int clearFullRows(Group blocksGroup) {
 	    int numRowsCleared = 0;
-	    
+
 	    for (int row = 0; row < Tetris.NUM_ROW; row++) {
-	        boolean isRowFull = true;
+	        int numNonZeroCells = 0;
+
 	        for (int col = 0; col < Tetris.NUM_COL; col++) {
-	            if (Board[row][col] == 0) {
-	            	// if there is a 0 in a line, the row is not full
-	                isRowFull = false;
-	                break;
+	            if (Board[row][col] != 0) {
+	                numNonZeroCells++;
 	            }
 	        }
-	        
-	        if (isRowFull) {
-	            // Clear the row 
+
+	        if (numNonZeroCells == Tetris.NUM_COL) {
+		        System.out.println("Row is full: " + row);
+
+	            // clear the row by setting to 0
 	            for (int col = 0; col < Tetris.NUM_COL; col++) {
 	                Board[row][col] = 0;
+
+	                // Remove the corresponding Rectangle object from the blocksGroup
+	                Rectangle rect = getRectangleAt(row, col, blocksGroup);
+	                if (rect != null) {
+	                    blocksGroup.getChildren().remove(rect);
+	                } else {
+	                    System.out.println("Rectangle is null");
+	                }
 	            }
-	            
+
 	            // Move all rows above this row down by one
 	            for (int r = row - 1; r >= 0; r--) {
 	                for (int col = 0; col < Tetris.NUM_COL; col++) {
 	                    Board[r+1][col] = Board[r][col];
 	                    Board[r][col] = 0;
+
+	                    // Move the corresponding Rectangle object down by one cell
+	                    Rectangle rect = getRectangleAt(r, col, blocksGroup);
+	                    if (rect != null) {
+	                        rect.setY(rect.getY() + Tetris.BLOCK_SIZE);
+	                    }
 	                }
 	            }
-	            
+
 	            numRowsCleared++;
 	        }
 	    }
-	    
+
+	    setScore(getScore() + 100 * numRowsCleared);
 	    return numRowsCleared;
 	}
+
+	private Rectangle getRectangleAt(int row, int col, Group blocksGroup) {
+	    for (Node node : blocksGroup.getChildren()) {
+	    	
+	    	if(node instanceof Rectangle && ((Rectangle) node).getX()/BLOCK_SIZE == col && ((Rectangle) node).getY()/BLOCK_SIZE == row) {
+	    		
+	    		return (Rectangle) node;
+	    	}
+	    	
+	    }
+	    
+	    return null;
+	}
+
 
 	/*
 	 * Checks if the piece movement is legal
@@ -133,7 +188,7 @@ public class Board {
 	    if (Board[convertedY][convertedX] == 1) {
 	        return false;
 	    }
-
+	    
 	    return true;
 	}
 
@@ -160,11 +215,10 @@ public class Board {
 	}
 	
 	/*
-	 * Creates a Pane object to be painted on the 
+	 * Creates a Pane object to be painted onto the scene
 	 */
-	
 	public Pane createBoardPane() {
-	    Pane boardPane = new Pane();
+	    boardPane = new Pane();
 	    
 	    for (int currentRow = 0; currentRow < row; currentRow++) {
 	        for (int currentCol = 0; currentCol < col; currentCol++) {
@@ -177,16 +231,24 @@ public class Board {
 	    return boardPane;
 	}
 
-	public boolean isOccupied(Rectangle newPos) {
-		
-        int converted_X = (int) (newPos.getX() / Tetris.BLOCK_SIZE);
-        int converted_Y = (int) (newPos.getY() / Tetris.BLOCK_SIZE);
-
-		if(Board[converted_Y][converted_X] == 1) {
-			return true;
-		}
-		
-		return false;
+	public boolean isGameOver() {
+		return gameOver;
 	}
-	
+
+	public void setGameOver(boolean gameOver) {
+		this.gameOver = gameOver;
+	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
+	}
+
+	public Node getBoardPane() {
+		return boardPane;
+	}
+
 }

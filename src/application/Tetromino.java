@@ -38,7 +38,23 @@ public abstract class Tetromino {
 	       rect.setFill(color);
 	        }
 	    }
+		
+		Tetromino(Tetromino otherTetromino) {
+		    this.Points = new ArrayList<>();
+		    for (Rectangle rect : otherTetromino.getPoints()) {
+		        Rectangle newRect = new Rectangle(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight());
+		        newRect.setFill(otherTetromino.getColor());
+		        this.Points.add(newRect);
+		    }
+		    this.color = otherTetromino.getColor();
+		    this.Rotation_Index = otherTetromino.getRotationIndex();
+		}
+
 	
+	private int getRotationIndex() {
+			return Rotation_Index;
+		}
+
 	public abstract void rotate();
 	
 	public Rectangle getRectA() {
