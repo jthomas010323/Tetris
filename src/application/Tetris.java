@@ -6,14 +6,10 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Line;
 import javafx.stage.Stage;
-
-import java.util.ArrayList;
 import java.util.Random;
 
 public class Tetris extends Application {
@@ -56,13 +52,13 @@ public class Tetris extends Application {
             //Handle keyboard inputs
             gameScene.setOnKeyPressed(event -> {
                 KeyCode keyCode = event.getCode();
-                if (keyCode == KeyCode.LEFT) {
+                if (keyCode == KeyCode.LEFT || keyCode == KeyCode.A) {
                 	Pieces_Controller.Move_Left(currentTetromino, gameBoard);
-                } else if (keyCode == KeyCode.RIGHT) {
+                } else if (keyCode == KeyCode.RIGHT || keyCode == KeyCode.D) {
                 	Pieces_Controller.Move_Right(currentTetromino, gameBoard);
-                } else if (keyCode == KeyCode.DOWN || keyCode == KeyCode.SPACE) {
+                } else if (keyCode == KeyCode.DOWN || keyCode == KeyCode.SPACE || keyCode == KeyCode.S) {
                 	Pieces_Controller.Move_Down(currentTetromino, gameBoard);
-                } else if (keyCode == KeyCode.UP || keyCode == KeyCode.Z){
+                } else if (keyCode == KeyCode.UP || keyCode == KeyCode.Z || keyCode == KeyCode.W){
                 	Pieces_Controller.Rotate_Clockwise(currentTetromino, gameBoard);
                 }else if(keyCode == KeyCode.ESCAPE) {
                 	paused = !paused;
@@ -89,13 +85,14 @@ public class Tetris extends Application {
 				            // Tetromino cannot move down, so place it on the board and spawn a new one
 				            gameBoard.placeShape(currentTetromino); //Add shape to the ArrayList of placed shapes
 				            
-				            System.out.println("Before clearing");
+				            System.out.println("Before calling clear");
 					        gameBoard.PrintBoard();
 
 				            gameBoard.clearFullRows(blocksGroup);// Check and clear full rows
-				            System.out.println("After clearing");
+				            System.out.println("After calling clear");
 					        gameBoard.PrintBoard();
-
+					        
+					        gameBoard.checkGameOver();
 				            if(gameBoard.isGameOver()) {
 				            	gameLoop.stop();
 				            }
@@ -122,7 +119,6 @@ public class Tetris extends Application {
                 blocksGroup.getChildren().add(block);
             }
        
-         
             gamePane.setStyle("-fx-background-color: gray;");
             
             primaryStage.setScene(gameScene);

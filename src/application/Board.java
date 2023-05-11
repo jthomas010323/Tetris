@@ -34,6 +34,11 @@ public class Board {
 	private ArrayList<Rectangle> Points_Collection;
 	private Pane boardPane;
 	
+	/**
+	 * Constructor that takes in parameters 
+	 * @param NUM_ROW
+	 * @param NUM_COL
+	 */
 	Board(int NUM_ROW, int NUM_COL){
 		row = NUM_ROW;
 		col = NUM_COL;
@@ -52,14 +57,15 @@ public class Board {
         }
 	}
 	
-	/*
-	 * PlaceShape works in tandem with setBoard()
+	/* PlaceShape works in tandem with setBoard()
 	 * The board should only place a block when it is at the bottom of the board
 	 * or if the block directly under it is another block
 	 * 
 	 * The console will mark the position of the placed block
 	 * 1 = occupied
-	 * 0 = unoccupied
+	 * 0 = unoccupied 
+	 * @param tetromino
+	 * @return
 	 */
 	public boolean placeShape(Tetromino tetromino) {
 		
@@ -67,7 +73,7 @@ public class Board {
 			return false;
 		
 	for(Rectangle rect : tetromino.getPoints()) {
-		
+		 
 	    Points_Collection.add(rect);
 
 	}
@@ -89,17 +95,18 @@ public class Board {
 				Board[converted_Y][converted_X] = 1;
 			
 		}
+		System.out.println("In setBoard************************************");
+	    PrintBoard();
+	    System.out.println("************************************");
 		
 	}
 	
+	/*
+	 * Check if next shape will spawn on top another piece on the board
+	 * 
+	 */
 	public void checkGameOver() {
-		for(Rectangle rect: Points_Collection) {
-			int converted_Y = (int) (rect.getY()/Tetris.BLOCK_SIZE);
-
-			if(converted_Y <= 0){
-				gameOver = true;
-			}
-		}
+		
 	}
 
 	/*
@@ -124,9 +131,9 @@ public class Board {
 	            // clear the row by setting to 0
 	            for (int col = 0; col < Tetris.NUM_COL; col++) {
 	                Board[row][col] = 0;
-
 	                // Remove the corresponding Rectangle object from the blocksGroup
 	                Rectangle rect = getRectangleAt(row, col, blocksGroup);
+	                Points_Collection.remove(rect);
 	                if (rect != null) {
 	                    blocksGroup.getChildren().remove(rect);
 	                } else {
@@ -153,6 +160,9 @@ public class Board {
 	    }
 
 	    setScore(getScore() + 100 * numRowsCleared);
+	    System.out.println("In clear rows************************************");
+	    PrintBoard();
+	    System.out.println("************************************");
 	    return numRowsCleared;
 	}
 
@@ -168,7 +178,6 @@ public class Board {
 	    
 	    return null;
 	}
-
 
 	/*
 	 * Checks if the piece movement is legal
@@ -250,5 +259,5 @@ public class Board {
 	public Node getBoardPane() {
 		return boardPane;
 	}
-
+	
 }

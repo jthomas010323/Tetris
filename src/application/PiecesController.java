@@ -22,6 +22,7 @@ public class PiecesController {
             return false;
         }
         
+        
         tetromino.rotate();
         
         return true;

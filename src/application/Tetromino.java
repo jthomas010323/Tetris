@@ -73,7 +73,7 @@ public abstract class Tetromino {
 		return d;
 	}
 	
-	public void setColor() {
+	public void setColor(Color color) {
 		this.color = color;
 	}
 
