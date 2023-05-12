@@ -15,11 +15,12 @@ public abstract class Tetromino {
 	private Rectangle c;
 	private Rectangle d;
 	private Color color;
+	Board gameBoard;
 	protected int Rotation_Index;
 		
-		Tetromino(Color color) {
+		Tetromino(Color color, Board gameBoard) {
 	        Points = new ArrayList<Rectangle>();
-
+	        this.gameBoard=gameBoard;
 	        a = new Rectangle(0, 0, Tetris.BLOCK_SIZE, Tetris.BLOCK_SIZE);
 	        b = new Rectangle(0, 0, Tetris.BLOCK_SIZE, Tetris.BLOCK_SIZE);
 	        c = new Rectangle(0, 0, Tetris.BLOCK_SIZE, Tetris.BLOCK_SIZE);
@@ -37,6 +38,7 @@ public abstract class Tetromino {
 	       for (Rectangle rect : Points) {
 	       rect.setFill(color);
 	        }
+	 
 	    }
 		
 		Tetromino(Tetromino otherTetromino) {
@@ -55,7 +57,7 @@ public abstract class Tetromino {
 			return Rotation_Index;
 		}
 
-	public abstract void rotate();
+	public abstract void rotate(Board gameBoard);
 	
 	public Rectangle getRectA() {
 		return a;

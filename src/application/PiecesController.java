@@ -23,7 +23,7 @@ public class PiecesController {
         }
         
         
-        tetromino.rotate();
+        tetromino.rotate(gameBoard);
         
         return true;
        

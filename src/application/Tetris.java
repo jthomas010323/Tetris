@@ -29,7 +29,7 @@ public class Tetris extends Application {
     private AnimationTimer gameLoop;
 
     private Tetromino currentTetromino;
-    private Board gameBoard;
+    private static Board gameBoard;
     private PiecesController Pieces_Controller = new PiecesController();
 
     private boolean paused = false;
@@ -117,7 +117,12 @@ public class Tetris extends Application {
             //Add first piece to board
             for (Rectangle block : currentTetromino.getPoints()) {
                 blocksGroup.getChildren().add(block);
-            }
+                if(block.getY()>=Board.BOARD_HEIGHT){
+                	
+                    System.exit(0);
+                }
+                }
+            
        
             gamePane.setStyle("-fx-background-color: gray;");
             
@@ -130,7 +135,7 @@ public class Tetris extends Application {
         }
     }
 
-    public static Tetromino spawnTetromino() {
+    public  Tetromino spawnTetromino() {
     	
     	/*
     	 * Index for shapes
@@ -144,18 +149,19 @@ public class Tetris extends Application {
     	 */
 
         final Tetromino[] POSSIBLE_SHAPES = {
-                new TetrominoI(Color.CYAN),
-                new TetrominoJ(Color.BLUE),
-                new TetrominoL(Color.ORANGE),
-                new TetrominoO(Color.YELLOW),
-                new TetrominoS(Color.LIMEGREEN),
-                new TetrominoT(Color.PINK),
-                new TetrominoZ(Color.RED)
+                new TetrominoI(Color.CYAN, gameBoard),
+                new TetrominoJ(Color.BLUE, gameBoard),
+                new TetrominoL(Color.ORANGE, gameBoard),
+                new TetrominoO(Color.YELLOW, gameBoard),
+                new TetrominoS(Color.LIMEGREEN, gameBoard),
+                new TetrominoT(Color.PINK, gameBoard),
+                new TetrominoZ(Color.RED, gameBoard)
         };
 
         Random random = new Random();
 
-        int index = random.nextInt(POSSIBLE_SHAPES.length);
+        int index = 1;
+        		//random.nextInt(POSSIBLE_SHAPES.length);
 
         switch(index) {
         case 0:
