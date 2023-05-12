@@ -17,7 +17,6 @@ public class TetrominoI extends Tetromino {
 		super.getRectB().setX(BOARD_WIDTH / 2 - BLOCK_SIZE);
 		super.getRectC().setX(BOARD_WIDTH / 2);
 		super.getRectD().setX(BOARD_WIDTH / 2 + BLOCK_SIZE);
-
   	}
 
 	@Override
@@ -64,6 +63,20 @@ public class TetrominoI extends Tetromino {
 	    }
 	    
 	    super.Rotation_Index = ((Rotation_Index + 1) % 4); // update the rotation index
+	}
+
+	@Override
+	protected void resetPosition() {
+		super.getRectA().setX(BOARD_WIDTH / 2 - BLOCK_SIZE * 2);
+		super.getRectB().setX(BOARD_WIDTH / 2 - BLOCK_SIZE);
+		super.getRectC().setX(BOARD_WIDTH / 2);
+		super.getRectD().setX(BOARD_WIDTH / 2 + BLOCK_SIZE);
+		
+		for(Rectangle rect : super.getPoints()) {
+			rect.setY(0);
+		}
+		
+		super.Rotation_Index = 0;
 	}
 
 }

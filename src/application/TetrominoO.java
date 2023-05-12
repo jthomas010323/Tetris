@@ -1,6 +1,7 @@
 package application;
 
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 public class TetrominoO extends Tetromino {
 	
@@ -13,16 +14,34 @@ public class TetrominoO extends Tetromino {
 		
 		super.getRectA().setX(BOARD_WIDTH / 2);
 		super.getRectB().setX(BOARD_WIDTH / 2 - BLOCK_SIZE);
-		super.getRectC().setY(BLOCK_SIZE);
 		super.getRectC().setX(BOARD_WIDTH / 2);
-		super.getRectC().setY(BLOCK_SIZE);
 		super.getRectD().setX(BOARD_WIDTH / 2 - BLOCK_SIZE);
+
+		super.getRectC().setY(BLOCK_SIZE);
 		super.getRectD().setY(BLOCK_SIZE);
+		
 		}
 
 	@Override
 	public void rotate() {
 		super.Rotation_Index = (super.Rotation_Index + 1) % 4;
+	}
+
+	@Override
+	protected void resetPosition() {
+		super.getRectA().setX(BOARD_WIDTH / 2);
+		super.getRectB().setX(BOARD_WIDTH / 2 - BLOCK_SIZE);
+		super.getRectC().setX(BOARD_WIDTH / 2);
+		super.getRectD().setX(BOARD_WIDTH / 2 - BLOCK_SIZE);
+
+		
+		super.getRectA().setY(0);
+		super.getRectB().setY(0);
+		super.getRectC().setY(BLOCK_SIZE);
+		super.getRectD().setY(BLOCK_SIZE);
+
+		super.Rotation_Index = 0;
+
 	}
 
 }

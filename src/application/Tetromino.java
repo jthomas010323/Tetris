@@ -84,5 +84,7 @@ public abstract class Tetromino {
 	public ArrayList<Rectangle> getPoints() {
 		return Points;
 	}
+
+	protected abstract void resetPosition();
 	
 }

@@ -17,13 +17,15 @@ public class PiecesController {
     /*
      * Rotates the current block
      */
-    boolean Rotate_Clockwise(Tetromino tetromino, Board gameBoard) {
-        if (tetromino == null) {
+    boolean Rotate_Clockwise(Tetromino Tetromino, Board gameBoard) {
+       
+    	if (Tetromino == null) {
             return false;
         }
         
+    	boolean canRotate = true;
         
-        tetromino.rotate();
+    	Tetromino.rotate();
         
         return true;
        
@@ -59,9 +61,9 @@ public class PiecesController {
             }
             
             return true;
-        }else {
-    		return false;
         }
+    		
+        return false;
         
     }
 
@@ -106,9 +108,10 @@ public class PiecesController {
             }
             
             return true;
-        }else {
-    		return false;
         }
+        
+    	return false;
+        
     }
     
     /*

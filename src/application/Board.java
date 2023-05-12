@@ -95,9 +95,6 @@ public class Board {
 				Board[converted_Y][converted_X] = 1;
 			
 		}
-		System.out.println("In setBoard************************************");
-	    PrintBoard();
-	    System.out.println("************************************");
 		
 	}
 	
@@ -160,9 +157,6 @@ public class Board {
 	    }
 
 	    setScore(getScore() + 100 * numRowsCleared);
-	    System.out.println("In clear rows************************************");
-	    PrintBoard();
-	    System.out.println("************************************");
 	    return numRowsCleared;
 	}
 

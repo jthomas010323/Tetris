@@ -29,6 +29,7 @@ public class Tetris extends Application {
     private AnimationTimer gameLoop;
 
     private Tetromino currentTetromino;
+    private Tetromino holdBlock;
     private Board gameBoard;
     private PiecesController Pieces_Controller = new PiecesController();
 
@@ -60,6 +61,8 @@ public class Tetris extends Application {
                 	Pieces_Controller.Move_Down(currentTetromino, gameBoard);
                 } else if (keyCode == KeyCode.UP || keyCode == KeyCode.Z || keyCode == KeyCode.W){
                 	Pieces_Controller.Rotate_Clockwise(currentTetromino, gameBoard);
+                }else if(keyCode == KeyCode.X){
+                	holdBlock();
                 }else if(keyCode == KeyCode.ESCAPE) {
                 	paused = !paused;
                 }
@@ -93,7 +96,8 @@ public class Tetris extends Application {
 					        gameBoard.PrintBoard();
 					        
 					        gameBoard.checkGameOver();
-				            if(gameBoard.isGameOver()) {
+				            
+					        if(gameBoard.isGameOver()) {
 				            	gameLoop.stop();
 				            }
 				            
@@ -130,7 +134,32 @@ public class Tetris extends Application {
         }
     }
 
-    public static Tetromino spawnTetromino() {
+    private void holdBlock() {
+    	
+    	for (Rectangle block : currentTetromino.getPoints()) {
+            blocksGroup.getChildren().remove(block);
+        }
+    	
+        if (holdBlock == null) {
+            holdBlock = currentTetromino;    
+            currentTetromino = spawnTetromino();
+        }
+        // Otherwise, swap the hold block with the current falling block
+        else {
+            Tetromino tempBlock = currentTetromino;
+            currentTetromino = holdBlock;
+            holdBlock = tempBlock;
+            
+            currentTetromino.resetPosition();
+        }
+        
+        for (Rectangle block : currentTetromino.getPoints()) {
+            blocksGroup.getChildren().add(block);
+        }
+    	
+	}
+
+	public static Tetromino spawnTetromino() {
     	
     	/*
     	 * Index for shapes
@@ -188,7 +217,6 @@ public class Tetris extends Application {
     public static Board createBoard() {
         Board gameBoard = new Board(NUM_ROW, NUM_COL);
         gameBoard.createBoardPane();
-        
         
         return gameBoard;
     }
