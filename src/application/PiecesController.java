@@ -24,8 +24,8 @@ public class PiecesController {
         }
         
     	boolean canRotate = true;
-        
-    	Tetromino.rotate();
+            	
+        Tetromino.rotate(gameBoard);
         
         return true;
        

@@ -30,7 +30,8 @@ public class Tetris extends Application {
 
     private Tetromino currentTetromino;
     private Tetromino holdBlock;
-    private Board gameBoard;
+    private static Board gameBoard;
+
     private PiecesController Pieces_Controller = new PiecesController();
 
     private boolean paused = false;
@@ -50,24 +51,6 @@ public class Tetris extends Application {
             gameBoard = createBoard();
             gamePane.getChildren().add(gameBoard.getBoardPane());
             
-            //Handle keyboard inputs
-            gameScene.setOnKeyPressed(event -> {
-                KeyCode keyCode = event.getCode();
-                if (keyCode == KeyCode.LEFT || keyCode == KeyCode.A) {
-                	Pieces_Controller.Move_Left(currentTetromino, gameBoard);
-                } else if (keyCode == KeyCode.RIGHT || keyCode == KeyCode.D) {
-                	Pieces_Controller.Move_Right(currentTetromino, gameBoard);
-                } else if (keyCode == KeyCode.DOWN || keyCode == KeyCode.SPACE || keyCode == KeyCode.S) {
-                	Pieces_Controller.Move_Down(currentTetromino, gameBoard);
-                } else if (keyCode == KeyCode.UP || keyCode == KeyCode.Z || keyCode == KeyCode.W){
-                	Pieces_Controller.Rotate_Clockwise(currentTetromino, gameBoard);
-                }else if(keyCode == KeyCode.X){
-                	holdBlock();
-                }else if(keyCode == KeyCode.ESCAPE) {
-                	paused = !paused;
-                }
-            });
-            
             gameLoop = new AnimationTimer() {
             //start game loop
                 private long lastUpdate = 0;
@@ -76,7 +59,26 @@ public class Tetris extends Application {
 				public void handle(long now) {
 				    // Only update the game state at a fixed interval (in nanoseconds)
 				    if (now - lastUpdate >= 500_000_000) {
+				    	
 				        
+				         //Handle keyboard inputs
+			            gameScene.setOnKeyPressed(event -> {
+			                KeyCode keyCode = event.getCode();
+			                if (keyCode == KeyCode.LEFT || keyCode == KeyCode.A) {
+			                	Pieces_Controller.Move_Left(currentTetromino, gameBoard);
+			                } else if (keyCode == KeyCode.RIGHT || keyCode == KeyCode.D) {
+			                	Pieces_Controller.Move_Right(currentTetromino, gameBoard);
+			                } else if (keyCode == KeyCode.DOWN || keyCode == KeyCode.SPACE || keyCode == KeyCode.S) {
+			                	Pieces_Controller.Move_Down(currentTetromino, gameBoard);
+			                } else if (keyCode == KeyCode.UP || keyCode == KeyCode.Z || keyCode == KeyCode.W){
+			                	Pieces_Controller.Rotate_Clockwise(currentTetromino, gameBoard);
+			                }else if(keyCode == KeyCode.X){
+			                	holdBlock();
+			                }else if(keyCode == KeyCode.ESCAPE) {
+			                	paused = !paused;
+			                }
+			            });
+			            
 				    	if(paused) {
 				    		return;
 				    	}
@@ -86,21 +88,16 @@ public class Tetris extends Application {
 
 				    	} else {
 				            // Tetromino cannot move down, so place it on the board and spawn a new one
-				            gameBoard.placeShape(currentTetromino); //Add shape to the ArrayList of placed shapes
-				            
-				            System.out.println("Before calling clear");
-					        gameBoard.PrintBoard();
-
+				            gameBoard.placeShape(currentTetromino); //Add shape to the ArrayList of placed shapes				            
 				            gameBoard.clearFullRows(blocksGroup);// Check and clear full rows
-				            System.out.println("After calling clear");
 					        gameBoard.PrintBoard();
 					        
 					        gameBoard.checkGameOver();
-				            
+					        
 					        if(gameBoard.isGameOver()) {
 				            	gameLoop.stop();
 				            }
-				            
+					        
 				            //Tetromino is assigned to a new block
 				            currentTetromino = spawnTetromino();
 				            
@@ -121,7 +118,12 @@ public class Tetris extends Application {
             //Add first piece to board
             for (Rectangle block : currentTetromino.getPoints()) {
                 blocksGroup.getChildren().add(block);
-            }
+                if(block.getY()>=Board.BOARD_HEIGHT){
+                	
+                    System.exit(0);
+                }
+                }
+            
        
             gamePane.setStyle("-fx-background-color: gray;");
             
@@ -159,7 +161,7 @@ public class Tetris extends Application {
     	
 	}
 
-	public static Tetromino spawnTetromino() {
+    public static Tetromino spawnTetromino() {
     	
     	/*
     	 * Index for shapes
@@ -173,13 +175,13 @@ public class Tetris extends Application {
     	 */
 
         final Tetromino[] POSSIBLE_SHAPES = {
-                new TetrominoI(Color.CYAN),
-                new TetrominoJ(Color.BLUE),
-                new TetrominoL(Color.ORANGE),
-                new TetrominoO(Color.YELLOW),
-                new TetrominoS(Color.LIMEGREEN),
-                new TetrominoT(Color.PINK),
-                new TetrominoZ(Color.RED)
+                new TetrominoI(Color.CYAN, gameBoard),
+                new TetrominoJ(Color.BLUE, gameBoard),
+                new TetrominoL(Color.ORANGE, gameBoard),
+                new TetrominoO(Color.YELLOW, gameBoard),
+                new TetrominoS(Color.LIMEGREEN, gameBoard),
+                new TetrominoT(Color.PINK, gameBoard),
+                new TetrominoZ(Color.RED, gameBoard)
         };
 
         Random random = new Random();

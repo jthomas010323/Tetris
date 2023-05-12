@@ -67,6 +67,12 @@ public class Board {
 	 * @param tetromino
 	 * @return
 	 */
+	public void gameOver() {
+		
+	}
+	public int getBoard(double x, double y) {
+        return Board[(int) y][(int) x];
+    }
 	public boolean placeShape(Tetromino tetromino) {
 		
 		if(tetromino == null)
@@ -103,7 +109,12 @@ public class Board {
 	 * 
 	 */
 	public void checkGameOver() {
-		
+		for(Rectangle blocks : Points_Collection) {
+			if(blocks.getY() <= 0) {
+				System.out.println("GAME OVER!!!");
+				gameOver=true;
+			}
+		}
 	}
 
 	/*
