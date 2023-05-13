@@ -243,7 +243,20 @@ public class Board {
 	    }
 	    return boardPane;
 	}
+	
+	public void resetBoard() {
+        for(int row = 0; row < NUM_ROW; row++) {
+               for(int col = 0; col < NUM_COL; col++) {
+                   Board[row][col] = 0;
+               }
 
+           }
+        
+        setScore(0);
+        setGameOver(false);
+        Points_Collection = null;
+   }
+	
 	public boolean isGameOver() {
 		return gameOver;
 	}
