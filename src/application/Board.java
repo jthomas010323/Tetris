@@ -48,7 +48,7 @@ public class Board {
 		setScore(0);
 		setGameOver(false);
 		
-		   
+		//Initialize the board to 0 in the beginning
         for(int row = 0; row < NUM_ROW; row++) {
         	for(int col = 0; col < NUM_COL; col++) {
         		Board[row][col] = 0;
@@ -56,8 +56,13 @@ public class Board {
         	
         }
 	}
+
+	public int getBoard(double x, double y) {
+        return Board[(int) y][(int) x];
+    }
 	
-	/* PlaceShape works in tandem with setBoard()
+	/** 	
+	 * PlaceShape works in tandem with setBoard()
 	 * The board should only place a block when it is at the bottom of the board
 	 * or if the block directly under it is another block
 	 * 
@@ -67,12 +72,6 @@ public class Board {
 	 * @param tetromino
 	 * @return
 	 */
-	public void gameOver() {
-		
-	}
-	public int getBoard(double x, double y) {
-        return Board[(int) y][(int) x];
-    }
 	public boolean placeShape(Tetromino tetromino) {
 		
 		if(tetromino == null)
