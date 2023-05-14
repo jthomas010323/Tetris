@@ -1,6 +1,7 @@
 package application;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -32,6 +33,7 @@ public class Board {
 	private int[][] Board;
 	private boolean gameOver;
 	private ArrayList<Rectangle> Points_Collection;
+	private HashMap<Color,Rectangle> boardMap = new HashMap<Color,Rectangle>();
 	private Pane boardPane;
 	
 	/**
@@ -48,21 +50,20 @@ public class Board {
 		setScore(0);
 		setGameOver(false);
 		
-		//Initialize the board to 0 in the beginning
+		   
         for(int row = 0; row < NUM_ROW; row++) {
         	for(int col = 0; col < NUM_COL; col++) {
         		Board[row][col] = 0;
         	}
         	
         }
-	}
-
+	} 
+	
 	public int getBoard(double x, double y) {
         return Board[(int) y][(int) x];
     }
 	
-	/** 	
-	 * PlaceShape works in tandem with setBoard()
+	/* PlaceShape works in tandem with setBoard()
 	 * The board should only place a block when it is at the bottom of the board
 	 * or if the block directly under it is another block
 	 * 
@@ -75,11 +76,12 @@ public class Board {
 	public boolean placeShape(Tetromino tetromino) {
 		
 		if(tetromino == null)
-			return false;
+			return false;  
 		
 	for(Rectangle rect : tetromino.getPoints()) {
 		 
 	    Points_Collection.add(rect);
+	    boardMap.put(tetromino.getColor(), rect);
 
 	}
 		setBoard();
@@ -100,6 +102,9 @@ public class Board {
 				Board[converted_Y][converted_X] = 1;
 			
 		}
+		System.out.println("In setBoard************************************");
+	    PrintBoard();
+	    System.out.println("************************************");
 		
 	}
 	
@@ -108,12 +113,12 @@ public class Board {
 	 * 
 	 */
 	public void checkGameOver() {
-		for(Rectangle blocks : Points_Collection) {
-			if(blocks.getY() <= 0) {
-				System.out.println("GAME OVER!!!");
-				gameOver=true;
-			}
-		}
+		//for(Rectangle blocks : Points_Collection) {
+		//	if(blocks.getY()>=BOARD_HEIGHT-BLOCK_SIZE) {
+			//	System.out.println("GAME OVER!!!");
+			//	gameOver=true;
+			//}
+		//}
 	}
 
 	/*
@@ -167,6 +172,9 @@ public class Board {
 	    }
 
 	    setScore(getScore() + 100 * numRowsCleared);
+	    System.out.println("In clear rows************************************");
+	    PrintBoard();
+	    System.out.println("************************************");
 	    return numRowsCleared;
 	}
 
@@ -243,24 +251,12 @@ public class Board {
 	    }
 	    return boardPane;
 	}
-	
-	public void resetBoard() {
-        for(int row = 0; row < NUM_ROW; row++) {
-               for(int col = 0; col < NUM_COL; col++) {
-                   Board[row][col] = 0;
-               }
 
-           }
-        
-        setScore(0);
-        setGameOver(false);
-        Points_Collection = null;
-   }
-	
-	public boolean isGameOver() {
-		return gameOver;
+
+	public ArrayList<Rectangle> getPoints_Collection(){
+		return Points_Collection;
 	}
-
+	
 	public void setGameOver(boolean gameOver) {
 		this.gameOver = gameOver;
 	}
@@ -275,6 +271,18 @@ public class Board {
 
 	public Node getBoardPane() {
 		return boardPane;
+	}
+	
+	public void resetBoard() {
+		 for(int row = 0; row < NUM_ROW; row++) {
+	        	for(int col = 0; col < NUM_COL; col++) {
+	        		Board[row][col] = 0;
+	        	}
+	        	
+	        }
+		 setScore(0);
+		 setGameOver(false);
+		 Points_Collection = null;
 	}
 	
 }
