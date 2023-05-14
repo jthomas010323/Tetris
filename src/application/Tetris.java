@@ -45,6 +45,8 @@ import javafx.util.Duration;
 import static javafx.scene.transform.Rotate.Y_AXIS;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.Random;
 
@@ -65,8 +67,7 @@ public class Tetris extends Application {
     private Pane gamePane = new Pane(blocksGroup);
     private Scene gameScene = new Scene(new BorderPane(gamePane), BOARD_WIDTH + 360, BOARD_HEIGHT);
     private AnimationTimer gameLoop;
-    private AnimationTimer gameLoop2;
-
+ 
     private Tetromino currentTetromino;
     private Tetromino holdBlock;
     
@@ -75,6 +76,7 @@ public class Tetris extends Application {
 
     private boolean paused = false;
     private boolean isMainMenu = true;
+    HashMap<Color, Rectangle> mainMap = new HashMap<Color, Rectangle>();
     public static void main(String[] args) {
         launch(args);
     }
@@ -82,21 +84,18 @@ public class Tetris extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-        	gameScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
         	
         	Media BGM = new Media(new File("assets/SFX/Brilliant_Wings.mp3").toURI().toString());
+        	MediaPlayer BGM_Player = new MediaPlayer(BGM);
         	Media soundmenu = new Media(new File("assets/SFX/Title_Screen.mp3").toURI().toString());
+            MediaPlayer mediaPlayerMenu = new MediaPlayer(soundmenu);
         	Media sound2 = new Media(new File("assets/SFX/bubble.mp3").toURI().toString());
         	Media sound3 = new Media(new File("assets/SFX/button.mp3").toURI().toString());
-        	Media soundFile_GO = new Media(new File("assets/SFX/gameoversound.mp3").toURI().toString());
-
+        	gameScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
         	Label gameOverLabel = new Label("GAME OVER");
-        	
-            MediaPlayer BGM_Player = new MediaPlayer(BGM);
+        	Media soundFile_GO = new Media(new File("assets/SFX/gameoversound.mp3").toURI().toString());
         	MediaPlayer sound_GO = new MediaPlayer(soundFile_GO);
-            MediaPlayer mediaPlayerMenu = new MediaPlayer(soundmenu);
         	Font gameoverfont = Font.loadFont("assets/fonts/tetrisyde.ttf", 115);
-        	
         	gameOverLabel.setFont(gameoverfont);
         	gameOverLabel.setTextFill(Color.DARKRED);
         	gameOverLabel.setLayoutX(BLOCK_SIZE*2);
@@ -108,7 +107,7 @@ public class Tetris extends Application {
             
             //Create a board
             gameBoard = createBoard();
-            
+           // gamePane.getChildren().add(gameBoard.getBoardPane());
             //Handle keyboard inputs
             gameScene.setOnKeyPressed(event -> {
                 KeyCode keyCode = event.getCode();
@@ -126,7 +125,6 @@ public class Tetris extends Application {
                 	holdBlock();
                 }
             });
-            
             gameLoop = new AnimationTimer() {
             //start game loop
                 private long lastUpdate = 0;
@@ -135,10 +133,9 @@ public class Tetris extends Application {
 				public void handle(long now) {
 				    // Only update the game state at a fixed interval (in nanoseconds)
 				    if (now - lastUpdate >= 500_000_000) {
-				        
 				    	BGM_Player.setCycleCount(MediaPlayer.INDEFINITE);
 				    	BGM_Player.play();
-				    	
+				        
 				    	if(paused) {
 				    		return;
 				    	}
@@ -149,6 +146,8 @@ public class Tetris extends Application {
 				    }else {
 				            // Tetromino cannot move down, so place it on the board and spawn a new one
 				            gameBoard.placeShape(currentTetromino); //Add shape to the ArrayList of placed shapes
+				          
+				            
 				            //System.out.println("Before calling clear");
 					        gameBoard.PrintBoard();
 				            gameBoard.clearFullRows(blocksGroup);// Check and clear full rows
@@ -163,10 +162,12 @@ public class Tetris extends Application {
 					        			primaryStage.setScene(mainMenuScene);
 					        			mediaPlayerMenu.play();
 					        			gamePane.getChildren().clear();
-					        			gameLoop.stop();
 					        			isMainMenu = true;
+					        			primaryStage.close();
 					        		}));
 					        		sound_GO.play();
+					        		BGM_Player.stop();
+					        		gameLoop.stop();
 					        		gamePane.getChildren().add(gameOverLabel);
 					        		gameBoard.resetBoard();
 					        		backToMain_timeline.play();
@@ -174,6 +175,7 @@ public class Tetris extends Application {
 					        		break;
 					        	}
 					        }
+				            				            
 				            				           
 				        }
 				        
@@ -182,15 +184,19 @@ public class Tetris extends Application {
 				}
 
             };
+            
+            
+            //gameLoop.start();
 
             //Add first piece to board
             for (Rectangle block : currentTetromino.getPoints()) {
                 blocksGroup.getChildren().add(block);
+                
                 if(block.getY()>=Board.BOARD_HEIGHT){
                 	
                     System.exit(0);
                 }
-                }
+            }
             
        
             gamePane.setStyle("-fx-background-color: gray;");
@@ -222,8 +228,14 @@ public class Tetris extends Application {
                 
                 Button yesButton = new Button("Yes");
                 yesButton.setOnAction(saveAndQuitEvent -> {
+                	GameData gameData = new GameData(gameBoard.getPoints_Collection());
+
                     // Save game progress here
+                	gameData.setScore(gameBoard.getScore());
+                	gameData.saveGameProgress();
                 	primaryStage.setScene(mainMenuScene);
+                	primaryStage.close();
+                	BGM_Player.stop();
                 	gameBoard.resetBoard();
                 	mediaPlayerMenu.play();
                 	isMainMenu = true;
@@ -380,9 +392,23 @@ public class Tetris extends Application {
 	        
 	        Button loadGame = new Button("Load Game");
 	        loadGame.setOnMousePressed(event ->{
+	        	GameData gameData = new GameData(gameBoard.getPoints_Collection());
+	        	
+				gameData.loadGameProgress();
+				
+				for(SerializableRectangle rect : gameData.getSavedData()) {
+					gameBoard.getPoints_Collection().add(rect.toRectangle());
+					System.out.println(rect.getColor());
+				}
+				
+				for(Rectangle rect : gameBoard.getPoints_Collection()) {
+					blocksGroup.getChildren().add(rect);
+				}
+				
 	            MediaPlayer mp2 = new MediaPlayer(sound1);
 	        	mp2.play();
 	        });
+	        
 	        loadGame.setOnMouseEntered(event ->{
 	        	MediaPlayer mediaPlayer5 = new MediaPlayer(sound);
 	        	mediaPlayer5.play();
@@ -418,7 +444,6 @@ public class Tetris extends Application {
 	            }
 	        });
 	        
-
 	        mediaPlayerMenu.setCycleCount(MediaPlayer.INDEFINITE);
 			mediaPlayerMenu.play();
 			node.setBackground(background);
@@ -428,7 +453,7 @@ public class Tetris extends Application {
 			primaryStage.setScene(mainMenuScene);
 			primaryStage.setResizable(false);
 			primaryStage.show();
-            
+           
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -459,7 +484,8 @@ public class Tetris extends Application {
 
         Random random = new Random();
 
-        int index = random.nextInt(POSSIBLE_SHAPES.length);
+        int index = 1;
+        		//random.nextInt(POSSIBLE_SHAPES.length);
 
         switch(index) {
         case 0:
@@ -488,7 +514,8 @@ public class Tetris extends Application {
         return POSSIBLE_SHAPES[index];
 
     }
-    
+
+
     private void holdBlock() {
     	
     	for (Rectangle block : currentTetromino.getPoints()) {
