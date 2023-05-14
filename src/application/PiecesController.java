@@ -6,7 +6,8 @@ import javafx.scene.shape.Rectangle;
 //Rotations
 //Handles player input
 //Stores offset data
-public class PiecesController {
+public class PiecesController implements Controller{
+	
 	static final int NUM_ROW = Tetris.NUM_ROW;
 	static final int NUM_COL = Tetris.NUM_COL;
     static final int BLOCK_SIZE = Tetris.BLOCK_SIZE;
@@ -17,7 +18,7 @@ public class PiecesController {
     /*
      * Rotates the current block
      */
-    boolean Rotate_Clockwise(Tetromino Tetromino, Board gameBoard) {
+    public boolean Rotate_Clockwise(Tetromino Tetromino, Board gameBoard) {
        
     	if (Tetromino == null) {
             return false;
@@ -69,7 +70,7 @@ public class PiecesController {
     /*
      *Move shape left 
      */
-    boolean Move_Left(Tetromino Tetromino, Board gameBoard){
+    public boolean Move_Left(Tetromino Tetromino, Board gameBoard){
     	
     	/*
     	 * Create copy of the location of the current Tetromino
@@ -115,7 +116,7 @@ public class PiecesController {
     /*
      * Move shape right
      */
-    boolean Move_Right(Tetromino Tetromino, Board gameBoard){
+   public boolean Move_Right(Tetromino Tetromino, Board gameBoard){
     	
     	int newX;
     	

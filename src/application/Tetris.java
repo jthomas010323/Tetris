@@ -41,12 +41,8 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import static javafx.scene.transform.Rotate.Y_AXIS;
-
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.Random;
 
@@ -76,7 +72,7 @@ public class Tetris extends Application {
 
     private boolean paused = false;
     private boolean isMainMenu = true;
-    HashMap<Color, Rectangle> mainMap = new HashMap<Color, Rectangle>();
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -484,8 +480,7 @@ public class Tetris extends Application {
 
         Random random = new Random();
 
-        int index = 1;
-        		//random.nextInt(POSSIBLE_SHAPES.length);
+        int index = random.nextInt(POSSIBLE_SHAPES.length);
 
         switch(index) {
         case 0:

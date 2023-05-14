@@ -22,7 +22,7 @@ public class SerializableRectangle implements Serializable{
         this.y = rect.getY();
         this.width = rect.getWidth();
         this.height = rect.getHeight();
-         
+        
         //turn the color from getFill to a string
         this.col = "" + rect.getFill();
     }
