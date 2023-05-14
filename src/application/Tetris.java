@@ -396,7 +396,7 @@ public class Tetris extends Application {
 	        	
 				gameData.loadGameProgress();
 				
-				for(SerializableRectangle rect : gameData.getSavedData()) {
+				for(SerializableRectangle rect : gameData.getSavedData()) { 
 					gameBoard.getPoints_Collection().add(rect.toRectangle());
 					System.out.println(rect.getColor());
 				}

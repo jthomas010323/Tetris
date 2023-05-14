@@ -30,7 +30,7 @@ public class GameData implements Serializable {
 
     		Saved_Points.add(newRect);
     	}
-    	
+    	 
     }
     
     public void saveGameProgress() {

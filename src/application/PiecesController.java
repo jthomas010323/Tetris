@@ -122,7 +122,7 @@ public class PiecesController {
     	if(Tetromino == null) {
     		return false;
     	}
-    	
+    	 
         boolean canMoveRight = true;
         
         for(Rectangle rect : Tetromino.getPoints()) {

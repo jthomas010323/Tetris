@@ -57,7 +57,7 @@ public class Board {
         	}
         	
         }
-	}
+	} 
 	
 	public int getBoard(double x, double y) {
         return Board[(int) y][(int) x];
@@ -76,7 +76,7 @@ public class Board {
 	public boolean placeShape(Tetromino tetromino) {
 		
 		if(tetromino == null)
-			return false;
+			return false;  
 		
 	for(Rectangle rect : tetromino.getPoints()) {
 		 
