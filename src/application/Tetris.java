@@ -386,7 +386,7 @@ public class Tetris extends Application {
 	        loadGame.setOnMouseEntered(event ->{
 	        	MediaPlayer mediaPlayer5 = new MediaPlayer(sound);
 	        	mediaPlayer5.play();
-	        });
+	        }); 
 	        
 	        
 	        Button quit = new Button("Quit");
