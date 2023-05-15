@@ -63,36 +63,40 @@ import java.util.Random;
 public class Tetris extends Application {
 
     //define constants
-	static final int NUM_ROW = 24;
-	static final int NUM_COL = 12;
+	static final int NUM_ROW = 24; //row size
+	static final int NUM_COL = 12; //col size
 	
-    static final int BLOCK_SIZE = 25;
-    static final int BOARD_WIDTH = BLOCK_SIZE * NUM_COL;
-    static final int BOARD_HEIGHT = BLOCK_SIZE * NUM_ROW;
-    static final int CELL_SIZE = BOARD_WIDTH/(NUM_COL);
+    static final int BLOCK_SIZE = 25; //size of block
+    static final int BOARD_WIDTH = BLOCK_SIZE * NUM_COL; //width of board
+    static final int BOARD_HEIGHT = BLOCK_SIZE * NUM_ROW; //length of board
+    static final int CELL_SIZE = BOARD_WIDTH/(NUM_COL);	//size of each cell
     
-    BorderPane node = new BorderPane();
-	Scene mainMenuScene = new Scene(node,500,575);
-    private Group blocksGroup = new Group();
+    BorderPane node = new BorderPane();	//Node object
+	Scene mainMenuScene = new Scene(node,500,575); //creating scene
+    private Group blocksGroup = new Group(); 
     private Pane nextBlockPane = new Pane(blocksGroup);
-    private Pane gamePane = new Pane(blocksGroup);
+    private Pane gamePane = new Pane(blocksGroup); //pane for game
     
     private Scene gameScene = new Scene(new BorderPane(gamePane), BOARD_WIDTH + 250, BOARD_HEIGHT);
     private AnimationTimer gameLoop;
+    private Rectangle nextBlockA;  //hosting the  rectangle A for next block 
+    private Rectangle nextBlockB; //hosting the  rectangle B for next block 
+    private Rectangle nextBlockC; //hosting the  rectangle C for next block 
+    private Rectangle nextBlockD; //hosting the  rectangle D for next block 
  
-    private Tetromino currentTetromino;
-    private Tetromino nextTetromino;
-    private Tetromino nextNextTetromino;
-    private Tetromino holdBlock;
+    private Tetromino currentTetromino; //current block
+    private Tetromino nextTetromino; //next block
+    private Tetromino nextNextTetromino; //block after next block
+    private Tetromino holdBlock; //pause game
     
-    ArrayList<Rectangle> rectangleList = new ArrayList<>();
+    ArrayList<Rectangle> rectangleList = new ArrayList<>(); //contains all blocks
     
-    private static Board gameBoard;
-    private PiecesController Pieces_Controller = new PiecesController();
+    private static Board gameBoard;  //gameboard
+    private PiecesController Pieces_Controller = new PiecesController();  //piece controller object
 
     private boolean paused = false;
     private boolean isMainMenu = true;
-    HashMap<Color, Rectangle> mainMap = new HashMap<Color, Rectangle>();
+    HashMap<Color, Rectangle> mainMap = new HashMap<Color, Rectangle>(); //to find colors and rectangles accociateion. 
     public static void main(String[] args) {
         launch(args);
     }
@@ -101,7 +105,7 @@ public class Tetris extends Application {
     public void start(Stage primaryStage) {
         try {
         	
-        	Media BGM = new Media(new File("assets/SFX/Brilliant_Wings.mp3").toURI().toString());
+        	Media BGM = new Media(new File("assets/SFX/Brilliant_Wings.mp3").toURI().toString());  //media
         	MediaPlayer BGM_Player = new MediaPlayer(BGM);
         	Media soundmenu = new Media(new File("assets/SFX/Title_Screen.mp3").toURI().toString());
             MediaPlayer mediaPlayerMenu = new MediaPlayer(soundmenu);
@@ -253,37 +257,36 @@ public class Tetris extends Application {
 				    	
 				            if(gameBoard.placeShape(currentTetromino)) {
 				            	
-				            	
-				            	Rectangle a = new Rectangle(nextNextTetromino.getRectA().getX()+BLOCK_SIZE*11,nextNextTetromino.getRectA().getY()+BLOCK_SIZE*16,nextNextTetromino.getRectA().getWidth(),nextNextTetromino.getRectA().getHeight());
-				            	Rectangle b = new Rectangle(nextNextTetromino.getRectB().getX()+BLOCK_SIZE*11,nextNextTetromino.getRectB().getY()+BLOCK_SIZE*16,nextNextTetromino.getRectB().getWidth(),nextNextTetromino.getRectB().getHeight());
-				            	Rectangle c = new Rectangle(nextNextTetromino.getRectC().getX()+BLOCK_SIZE*11,nextNextTetromino.getRectC().getY()+BLOCK_SIZE*16,nextNextTetromino.getRectC().getWidth(),nextNextTetromino.getRectC().getHeight());
-				            	Rectangle d = new Rectangle(nextNextTetromino.getRectD().getX()+BLOCK_SIZE*11,nextNextTetromino.getRectD().getY()+BLOCK_SIZE*16,nextNextTetromino.getRectD().getWidth(),nextNextTetromino.getRectD().getHeight());
-				            	a.setFill(nextNextTetromino.getColor());
-				            	b.setFill(nextNextTetromino.getColor());
-				            	c.setFill(nextNextTetromino.getColor());
-				            	d.setFill(nextNextTetromino.getColor());
-				            	a.setStroke(Color.BLACK);
-				    	        b.setStroke(Color.BLACK);
-				    	        c.setStroke(Color.BLACK);
-				    	        d.setStroke(Color.BLACK);
+				            	gamePane.getChildren().remove(nextBlockA);
+					            gamePane.getChildren().remove(nextBlockB);
+					            gamePane.getChildren().remove(nextBlockC);
+					            gamePane.getChildren().remove(nextBlockD);
+				            	nextBlockA = new Rectangle(nextNextTetromino.getRectA().getX()+BLOCK_SIZE*11,nextNextTetromino.getRectA().getY()+BLOCK_SIZE*16,nextNextTetromino.getRectA().getWidth(),nextNextTetromino.getRectA().getHeight());
+				            	nextBlockB = new Rectangle(nextNextTetromino.getRectB().getX()+BLOCK_SIZE*11,nextNextTetromino.getRectB().getY()+BLOCK_SIZE*16,nextNextTetromino.getRectB().getWidth(),nextNextTetromino.getRectB().getHeight());
+				            	nextBlockC = new Rectangle(nextNextTetromino.getRectC().getX()+BLOCK_SIZE*11,nextNextTetromino.getRectC().getY()+BLOCK_SIZE*16,nextNextTetromino.getRectC().getWidth(),nextNextTetromino.getRectC().getHeight());
+				            	nextBlockD = new Rectangle(nextNextTetromino.getRectD().getX()+BLOCK_SIZE*11,nextNextTetromino.getRectD().getY()+BLOCK_SIZE*16,nextNextTetromino.getRectD().getWidth(),nextNextTetromino.getRectD().getHeight());
+				            	nextBlockA.setFill(nextNextTetromino.getColor());
+				            	nextBlockB.setFill(nextNextTetromino.getColor());
+				            	nextBlockC.setFill(nextNextTetromino.getColor());
+				            	nextBlockD.setFill(nextNextTetromino.getColor());
+				            	nextBlockA.setStroke(Color.BLACK);
+				            	nextBlockB.setStroke(Color.BLACK);
+				            	nextBlockC.setStroke(Color.BLACK);
+				            	nextBlockD.setStroke(Color.BLACK);
 				    	        
-				    	        a.setStrokeType(StrokeType.INSIDE);
-				    	        b.setStrokeType(StrokeType.INSIDE);
-				    	        c.setStrokeType(StrokeType.INSIDE);
-				    	        d.setStrokeType(StrokeType.INSIDE);
+				            	nextBlockA.setStrokeType(StrokeType.INSIDE);
+				            	nextBlockB.setStrokeType(StrokeType.INSIDE);
+				            	nextBlockC.setStrokeType(StrokeType.INSIDE);
+				            	nextBlockD.setStrokeType(StrokeType.INSIDE);
 				    	      
-				    	        a.setStrokeWidth(2);
-				    	        b.setStrokeWidth(2);
-				    	        c.setStrokeWidth(2);
-				    	        d.setStrokeWidth(2);
-				            	gamePane.getChildren().addAll(a,b,c,d);
+				            	nextBlockA.setStrokeWidth(2);
+				            	nextBlockB.setStrokeWidth(2);
+				            	nextBlockC.setStrokeWidth(2);
+				            	nextBlockD.setStrokeWidth(2);
+				            	gamePane.getChildren().addAll(nextBlockA,nextBlockB,nextBlockC,nextBlockD);
 				            	currentTetromino = nextTetromino;
 				            	nextTetromino = nextNextTetromino;
 				            	nextNextTetromino = spawnTetromino();
-				            	gamePane.getChildren().remove(a);
-				            	gamePane.getChildren().remove(a);
-				            	gamePane.getChildren().remove(a);
-				            	gamePane.getChildren().remove(a);
 				            	
 				            } 
 				            //Add shape to the ArrayList of placed shapes
@@ -291,6 +294,7 @@ public class Tetris extends Application {
 				            
 				            //System.out.println("Before calling clear");
 					        gameBoard.PrintBoard();
+					       
 				            int rowsCleared = gameBoard.clearFullRows(blocksGroup);// Check and clear full rows
 				            if(rowsCleared > 0) {
 				            	System.out.println("ROW CLEARED");
@@ -298,14 +302,16 @@ public class Tetris extends Application {
 				            	score.setText(scoreAsString);
 				            	gameFxTimeline.play();
 				            	//update the score in the game scene
+				            	
+					        	
 				            }
 				           // System.out.println("After calling clear");
 					        gameBoard.PrintBoard();
 					     //end the game
 					       // currentTetromino = spawnTetromino();
 					        for (Rectangle block : currentTetromino.getPoints()) {
-					        	blocksGroup.getChildren().add(block);
 					        	
+					        	blocksGroup.getChildren().add(block);
 					        	if(gameBoard.getBoard(block.getX()/BLOCK_SIZE, block.getY()/BLOCK_SIZE)==1) {
 					        		Timeline backToMain_timeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
 					        			mediaPlayerMenu.play();
