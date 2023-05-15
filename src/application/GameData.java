@@ -17,7 +17,7 @@ public class GameData implements Serializable {
 	private ArrayList<SerializableRectangle> Saved_Points;
 	private SerializableRectangle newRect;
     
-	public GameData(ArrayList<Rectangle> Points_Collection) {
+	public GameData(ArrayList<Rectangle> Points_Collection, int score) {
     	
     	Saved_Points = new ArrayList<SerializableRectangle>();
     	
@@ -27,16 +27,17 @@ public class GameData implements Serializable {
 
     		Saved_Points.add(newRect);
     	}
-    	 
+    	 this.score = score;
     }
     
     public void saveGameProgress() {
         try {
-            FileOutputStream fileOut = new FileOutputStream("save/gameData.ser");
+            FileOutputStream fileOut = new FileOutputStream("C:\\Users\\danie\\eclipse-workspace\\MainForProject\\src\\application\\gameData.ser");
             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
             
  
             objectOut.writeObject(Saved_Points);
+            objectOut.writeObject(score);
             
             objectOut.close();
             fileOut.close();
@@ -49,11 +50,12 @@ public class GameData implements Serializable {
 
     public void loadGameProgress() {    	
         try {
-            FileInputStream fileIn = new FileInputStream("save/gameData.ser");
+            FileInputStream fileIn = new FileInputStream("C:\\\\Users\\\\danie\\\\eclipse-workspace\\\\MainForProject\\\\src\\\\application\\\\gameData.ser");
             ObjectInputStream objectIn = new ObjectInputStream(fileIn);
             
             
             Saved_Points = (ArrayList<SerializableRectangle>) objectIn.readObject();            
+            score = (int)objectIn.readObject();
                     
             objectIn.close();
             fileIn.close();

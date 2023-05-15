@@ -1,12 +1,20 @@
 package application;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.effect.Glow;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 import javafx.scene.paint.Color;
 
 //The Board class has several jobs including:
@@ -81,10 +89,15 @@ public class Board {
 	for(Rectangle rect : tetromino.getPoints()) {
 		 
 	    Points_Collection.add(rect);
-	    boardMap.put(tetromino.getColor(), rect);
+	   
 
 	}
 		setBoard();
+		Media blockPlacedSound = new Media(new File("assets/SFX/blockPlacedSound1.mp3").toURI().toString());
+    	MediaPlayer blockPlacedSound_Player = new MediaPlayer(blockPlacedSound);
+    	blockPlacedSound_Player.setVolume(1.0);
+    	blockPlacedSound_Player.play();
+		
 		
 	    return true; 
 	}
@@ -138,6 +151,32 @@ public class Board {
 	        }
 
 	        if (numNonZeroCells == Tetris.NUM_COL) {
+	        	Media rowsClearedSound = new Media(new File("assets/SFX/clearRowSound.mp3").toURI().toString());
+            	MediaPlayer rowsClearedSound_Player = new MediaPlayer(rowsClearedSound);
+            	rowsClearedSound_Player.setVolume(1.0);
+            	rowsClearedSound_Player.play();
+            	
+            	ObservableList<Node> children = boardPane.getChildren();
+            	for (Node node : children) {
+            	    if (node instanceof Rectangle) {
+            	        Rectangle rect = (Rectangle) node;
+            	        Timeline timeline = new Timeline(
+            	                new KeyFrame(Duration.ZERO, event -> {
+            	                    Glow glow = new Glow();
+            	                    glow.setLevel(1.0);
+            	                    rect.setEffect(glow);
+            	                    rect.setStrokeWidth(2);
+            	                }),
+            	                new KeyFrame(Duration.seconds(1), event -> {
+            	                	rect.setStrokeWidth(1);
+            	                    rect.setEffect(null);
+            	                })
+            	        );
+            	        timeline.play();
+            	    }
+            	}
+            			 
+            	
 		        System.out.println("Row is full: " + row);
 
 	            // clear the row by setting to 0
@@ -240,12 +279,20 @@ public class Board {
 	 */
 	public Pane createBoardPane() {
 	    boardPane = new Pane();
+	    Rectangle largeRect = new Rectangle(0,0,BOARD_WIDTH,BOARD_HEIGHT);
+	    largeRect.setFill(Color.TRANSPARENT);
+	    largeRect.setStroke(Color.GHOSTWHITE);
+	    largeRect.setStrokeWidth(3);
+	    Glow glow = new Glow(1.0);
+	    largeRect.setEffect(glow);
+	    boardPane.getChildren().add(largeRect);
 	    
 	    for (int currentRow = 0; currentRow < row; currentRow++) {
 	        for (int currentCol = 0; currentCol < col; currentCol++) {
 	            Rectangle rect = new Rectangle(currentCol * CELL_SIZE, currentRow * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 	            rect.setFill(Color.TRANSPARENT);
-	            rect.setStroke(Color.BLACK);
+	            rect.setStroke(Color.GHOSTWHITE);
+	       
 	            boardPane.getChildren().add(rect);
 	        }
 	    }

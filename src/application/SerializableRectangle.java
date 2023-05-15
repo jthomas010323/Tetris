@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeType;
 
 public class SerializableRectangle implements Serializable{
     /**
@@ -22,7 +23,7 @@ public class SerializableRectangle implements Serializable{
         this.y = rect.getY();
         this.width = rect.getWidth();
         this.height = rect.getHeight();
-        
+         
         //turn the color from getFill to a string
         this.col = "" + rect.getFill();
     }
@@ -31,6 +32,9 @@ public class SerializableRectangle implements Serializable{
     	Rectangle newRect = new Rectangle(x, y, width, height);
     	Color c = Color.web(col);
     	newRect.setFill(c);
+    	newRect.setStroke(Color.BLACK);
+    	newRect.setStrokeType(StrokeType.INSIDE);
+    	newRect.setStrokeWidth(2);
     	
         return newRect;
     }

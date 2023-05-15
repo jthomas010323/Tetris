@@ -19,15 +19,23 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -36,13 +44,19 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
 import static javafx.scene.transform.Rotate.Y_AXIS;
+
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -60,19 +74,25 @@ public class Tetris extends Application {
     BorderPane node = new BorderPane();
 	Scene mainMenuScene = new Scene(node,500,575);
     private Group blocksGroup = new Group();
+    private Pane nextBlockPane = new Pane(blocksGroup);
     private Pane gamePane = new Pane(blocksGroup);
-    private Scene gameScene = new Scene(new BorderPane(gamePane), BOARD_WIDTH + 360, BOARD_HEIGHT);
+    
+    private Scene gameScene = new Scene(new BorderPane(gamePane), BOARD_WIDTH + 250, BOARD_HEIGHT);
     private AnimationTimer gameLoop;
  
     private Tetromino currentTetromino;
+    private Tetromino nextTetromino;
+    private Tetromino nextNextTetromino;
     private Tetromino holdBlock;
+    
+    ArrayList<Rectangle> rectangleList = new ArrayList<>();
     
     private static Board gameBoard;
     private PiecesController Pieces_Controller = new PiecesController();
 
     private boolean paused = false;
     private boolean isMainMenu = true;
-
+    HashMap<Color, Rectangle> mainMap = new HashMap<Color, Rectangle>();
     public static void main(String[] args) {
         launch(args);
     }
@@ -87,16 +107,95 @@ public class Tetris extends Application {
             MediaPlayer mediaPlayerMenu = new MediaPlayer(soundmenu);
         	Media sound2 = new Media(new File("assets/SFX/bubble.mp3").toURI().toString());
         	Media sound3 = new Media(new File("assets/SFX/button.mp3").toURI().toString());
-        	gameScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        	gameScene.getStylesheets().add(getClass().getResource("tetrisapplication.css").toExternalForm());
         	Label gameOverLabel = new Label("GAME OVER");
         	Media soundFile_GO = new Media(new File("assets/SFX/gameoversound.mp3").toURI().toString());
         	MediaPlayer sound_GO = new MediaPlayer(soundFile_GO);
-        	Font gameoverfont = Font.loadFont("assets/fonts/tetrisyde.ttf", 115);
-        	gameOverLabel.setFont(gameoverfont);
-        	gameOverLabel.setTextFill(Color.DARKRED);
-        	gameOverLabel.setLayoutX(BLOCK_SIZE*2);
-        	gameOverLabel.setLayoutY(BLOCK_SIZE*8);
+        	Font gameOverFont = Font.loadFont("file:./assets/fonts/tetrisyde.ttf", 95);
+        	Font scoreLabelFont = Font.loadFont("file:./assets/fonts/tetrisyde.ttf", 45);
+        	Font nextShapeLabelFont = Font.loadFont("file:./assets/fonts/tetrisyde.ttf", 45);
+        	Font scoreFont = Font.loadFont("file:./assets/fonts/tetrisyde.ttf", 45);
+        	gameOverLabel.setFont(gameOverFont);
+        	gameOverLabel.setTextFill(Color.GHOSTWHITE);
+        	gameOverLabel.setLayoutX(BLOCK_SIZE);
+        	gameOverLabel.setLayoutY(BLOCK_SIZE*10);
+        	Glow glowGO = new Glow();
+        	glowGO.setLevel(1.5);
+        	gameOverLabel.setEffect(glowGO);
         	
+        	Label score = new Label("0");
+        	Label scoreLabel = new Label("SCORE");
+        	Label nextShapeLabel = new Label("NEXT SHAPE");
+        	
+        	RotateTransition scoreLabelRotation = new RotateTransition(Duration.seconds(1), scoreLabel);
+        	scoreLabelRotation.setAxis(Y_AXIS);
+        	scoreLabelRotation.setByAngle(360);
+	        scoreLabel.setOnMouseClicked(e -> scoreLabelRotation.play());
+	        
+	        RotateTransition nextShapeLabelRotation = new RotateTransition(Duration.seconds(1), nextShapeLabel);
+	        nextShapeLabelRotation.setAxis(Y_AXIS);
+	        nextShapeLabelRotation.setByAngle(360);
+	        nextShapeLabel.setOnMouseClicked(e -> nextShapeLabelRotation.play());
+        	
+	        score.setFont(scoreFont);
+        	scoreLabel.setFont(scoreLabelFont);
+        	nextShapeLabel.setFont(nextShapeLabelFont);
+        	
+        	score.setTextFill(Color.GHOSTWHITE);
+        	scoreLabel.setTextFill(Color.GHOSTWHITE);
+        	nextShapeLabel.setTextFill(Color.GHOSTWHITE);
+        	
+        	scoreLabel.setLayoutX(BLOCK_SIZE*14.5);
+        	scoreLabel.setLayoutY(BLOCK_SIZE*4);
+        	
+        	nextShapeLabel.setLayoutX(BLOCK_SIZE*12.5);
+        	nextShapeLabel.setLayoutY(BLOCK_SIZE*13);
+        	
+        	gamePane.getChildren().add(scoreLabel);
+        	gamePane.getChildren().add(nextShapeLabel);
+        	
+        	
+        	VBox scoreBox = new VBox();
+            scoreBox.setPrefSize(180, 90);
+            scoreBox.setLayoutX(BLOCK_SIZE*13.5);
+            scoreBox.setLayoutY(BLOCK_SIZE*5.5);
+            scoreBox.setAlignment(Pos.CENTER);
+            scoreBox.setBorder(new Border(new BorderStroke(Color.GHOSTWHITE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
+            scoreBox.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+            gamePane.getChildren().add(scoreBox);
+            
+            VBox nextShapeBox = new VBox();
+            nextShapeBox.setPrefSize(180, 140);
+            nextShapeBox.setLayoutX(BLOCK_SIZE*13.5);
+            nextShapeBox.setLayoutY(BLOCK_SIZE*14.5);
+            nextShapeBox.setAlignment(Pos.CENTER);
+            nextShapeBox.setBorder(new Border(new BorderStroke(Color.GHOSTWHITE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
+            nextShapeBox.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+            gamePane.getChildren().add(nextShapeBox);
+        	
+            scoreBox.getChildren().add(score);
+            
+            
+            Timeline gameFxTimeline = new Timeline(
+	                new KeyFrame(Duration.ZERO, event -> {
+	                    Glow glowE = new Glow();
+	                    glowE.setLevel(1.0);
+	                    score.setEffect(glowE);
+	                    scoreLabel.setEffect(glowE);
+	                    nextShapeLabel.setEffect(glowE);
+	                    scoreBox.setEffect(glowE);
+	                    nextShapeBox.setEffect(glowE);
+	                }),
+	                new KeyFrame(Duration.seconds(1), event -> {
+	                	score.setEffect(null);
+	                    scoreLabel.setEffect(null);
+	                    nextShapeLabel.setEffect(null);
+	                    scoreBox.setEffect(null);
+	                    nextShapeBox.setEffect(null);
+	                })
+	        );
+        	
+     
         	System.out.println("Dimensions: " + BOARD_WIDTH + "x" + BOARD_HEIGHT);
             //Spawn a new Tetromino
             currentTetromino = spawnTetromino();
@@ -113,6 +212,7 @@ public class Tetris extends Application {
                 	Pieces_Controller.Move_Right(currentTetromino, gameBoard);
                 } else if (keyCode == KeyCode.DOWN || keyCode == KeyCode.SPACE || keyCode == KeyCode.S) {
                 	Pieces_Controller.Move_Down(currentTetromino, gameBoard);
+                	gameBoard.setScore(gameBoard.getScore()+2);
                 } else if (keyCode == KeyCode.UP || keyCode == KeyCode.Z || keyCode == KeyCode.W){
                 	Pieces_Controller.Rotate_Clockwise(currentTetromino, gameBoard);
                 }else if(keyCode == KeyCode.ESCAPE) {
@@ -121,15 +221,21 @@ public class Tetris extends Application {
                 	holdBlock();
                 }
             });
+            currentTetromino = spawnTetromino();
+            nextTetromino = spawnTetromino();
+            nextNextTetromino = spawnTetromino();
+            
             gameLoop = new AnimationTimer() {
             //start game loop
                 private long lastUpdate = 0;
-
+       
 				@Override
 				public void handle(long now) {
 				    // Only update the game state at a fixed interval (in nanoseconds)
+					
 				    if (now - lastUpdate >= 500_000_000) {
 				    	BGM_Player.setCycleCount(MediaPlayer.INDEFINITE);
+				    	BGM_Player.setVolume(0.2);
 				    	BGM_Player.play();
 				        
 				    	if(paused) {
@@ -141,21 +247,67 @@ public class Tetris extends Application {
  
 				    }else {
 				            // Tetromino cannot move down, so place it on the board and spawn a new one
-				            gameBoard.placeShape(currentTetromino); //Add shape to the ArrayList of placed shapes
+				    	
+				    	
+				    	
+				    	
+				            if(gameBoard.placeShape(currentTetromino)) {
+				            	
+				            	
+				            	Rectangle a = new Rectangle(nextNextTetromino.getRectA().getX()+BLOCK_SIZE*11,nextNextTetromino.getRectA().getY()+BLOCK_SIZE*16,nextNextTetromino.getRectA().getWidth(),nextNextTetromino.getRectA().getHeight());
+				            	Rectangle b = new Rectangle(nextNextTetromino.getRectB().getX()+BLOCK_SIZE*11,nextNextTetromino.getRectB().getY()+BLOCK_SIZE*16,nextNextTetromino.getRectB().getWidth(),nextNextTetromino.getRectB().getHeight());
+				            	Rectangle c = new Rectangle(nextNextTetromino.getRectC().getX()+BLOCK_SIZE*11,nextNextTetromino.getRectC().getY()+BLOCK_SIZE*16,nextNextTetromino.getRectC().getWidth(),nextNextTetromino.getRectC().getHeight());
+				            	Rectangle d = new Rectangle(nextNextTetromino.getRectD().getX()+BLOCK_SIZE*11,nextNextTetromino.getRectD().getY()+BLOCK_SIZE*16,nextNextTetromino.getRectD().getWidth(),nextNextTetromino.getRectD().getHeight());
+				            	a.setFill(nextNextTetromino.getColor());
+				            	b.setFill(nextNextTetromino.getColor());
+				            	c.setFill(nextNextTetromino.getColor());
+				            	d.setFill(nextNextTetromino.getColor());
+				            	a.setStroke(Color.BLACK);
+				    	        b.setStroke(Color.BLACK);
+				    	        c.setStroke(Color.BLACK);
+				    	        d.setStroke(Color.BLACK);
+				    	        
+				    	        a.setStrokeType(StrokeType.INSIDE);
+				    	        b.setStrokeType(StrokeType.INSIDE);
+				    	        c.setStrokeType(StrokeType.INSIDE);
+				    	        d.setStrokeType(StrokeType.INSIDE);
+				    	      
+				    	        a.setStrokeWidth(2);
+				    	        b.setStrokeWidth(2);
+				    	        c.setStrokeWidth(2);
+				    	        d.setStrokeWidth(2);
+				            	gamePane.getChildren().addAll(a,b,c,d);
+				            	currentTetromino = nextTetromino;
+				            	nextTetromino = nextNextTetromino;
+				            	nextNextTetromino = spawnTetromino();
+				            	gamePane.getChildren().remove(a);
+				            	gamePane.getChildren().remove(a);
+				            	gamePane.getChildren().remove(a);
+				            	gamePane.getChildren().remove(a);
+				            	
+				            } 
+				            //Add shape to the ArrayList of placed shapes
 				          
 				            
 				            //System.out.println("Before calling clear");
 					        gameBoard.PrintBoard();
-				            gameBoard.clearFullRows(blocksGroup);// Check and clear full rows
+				            int rowsCleared = gameBoard.clearFullRows(blocksGroup);// Check and clear full rows
+				            if(rowsCleared > 0) {
+				            	System.out.println("ROW CLEARED");
+				            	String scoreAsString = Integer.toString(gameBoard.getScore());
+				            	score.setText(scoreAsString);
+				            	gameFxTimeline.play();
+				            	//update the score in the game scene
+				            }
 				           // System.out.println("After calling clear");
 					        gameBoard.PrintBoard();
 					     //end the game
-					        currentTetromino = spawnTetromino();
+					       // currentTetromino = spawnTetromino();
 					        for (Rectangle block : currentTetromino.getPoints()) {
 					        	blocksGroup.getChildren().add(block);
+					        	
 					        	if(gameBoard.getBoard(block.getX()/BLOCK_SIZE, block.getY()/BLOCK_SIZE)==1) {
 					        		Timeline backToMain_timeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
-					        			primaryStage.setScene(mainMenuScene);
 					        			mediaPlayerMenu.play();
 					        			gamePane.getChildren().clear();
 					        			isMainMenu = true;
@@ -171,12 +323,11 @@ public class Tetris extends Application {
 					        		break;
 					        	}
 					        }
-				            				            
-				            				           
 				        }
 				        
 				        lastUpdate = now;
 				    }
+				    
 				}
 
             };
@@ -187,18 +338,27 @@ public class Tetris extends Application {
             //Add first piece to board
             for (Rectangle block : currentTetromino.getPoints()) {
                 blocksGroup.getChildren().add(block);
-                
+               
                 if(block.getY()>=Board.BOARD_HEIGHT){
                 	
                     System.exit(0);
                 }
-            }
+           }
             
-       
-            gamePane.setStyle("-fx-background-color: gray;");
+         /*   Image gameImage = new Image("C:\\Users\\danie\\eclipse-workspace\\MainForProject\\src\\application\\backgroundImage1.png");
+            BackgroundImage gameSceneBGI = new BackgroundImage(gameImage,
+        	        BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT,
+        	        BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT);
+        	        Background gameSceneBG = new Background(gameSceneBGI);
+            gamePane.setBackground(gameSceneBG);*/
+            
+           
+            gamePane.setStyle("-fx-background-color: black;");
+            
+            
             
             Button pauseButton = new Button("| |");
-            pauseButton.setLayoutX(590);
+            pauseButton.setLayoutX(480);
             pauseButton.setLayoutY(10);
             pauseButton.setOnMousePressed(e ->{
 	        	MediaPlayer mp7 = new MediaPlayer(sound3);
@@ -210,7 +370,7 @@ public class Tetris extends Application {
             	mediaPlayer7.play();
 	        });
 
-            pauseButton.setOnAction(event -> {
+            pauseButton.setOnMouseClicked(event -> {
                 // Pause the game here
                 
                 // Create a popup window
@@ -223,26 +383,22 @@ public class Tetris extends Application {
                 Label messageLabel = new Label("Do you want to save and quit the game?");
                 
                 Button yesButton = new Button("Yes");
-                yesButton.setOnAction(saveAndQuitEvent -> {
-                	GameData gameData = new GameData(gameBoard.getPoints_Collection());
+                yesButton.setOnMouseClicked(saveAndQuitEvent -> {
+                	GameData gameData = new GameData(gameBoard.getPoints_Collection(),gameBoard.getScore());
 
                     // Save game progress here
-                	gameData.setScore(gameBoard.getScore());
                 	gameData.saveGameProgress();
-                	primaryStage.setScene(mainMenuScene);
                 	primaryStage.close();
                 	BGM_Player.stop();
-                	gameBoard.resetBoard();
                 	mediaPlayerMenu.play();
                 	isMainMenu = true;
-                	gamePane.getChildren().clear();
                     // Close popup window and quit game
                     popupWindow.close();
                     // Call method to quit game
                 });
                 
                 Button noButton = new Button("No");
-                noButton.setOnAction(resumeEvent -> {
+                noButton.setOnMouseClicked(resumeEvent -> {
                     // Close popup window and resume game
                     popupWindow.close();
                     gameLoop.start();
@@ -271,7 +427,7 @@ public class Tetris extends Application {
             primaryStage.getIcons().add(icon);
            
           
-			mainMenuScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+			mainMenuScene.getStylesheets().add(getClass().getResource("tetrisapplication.css").toExternalForm());
 			
 			Image BGI = new Image("file:./assets/Images/tetris1bg.png");
 			Image icon1 = new Image("file:./assets/Images/dog(Opp)_tetrisShape.png");
@@ -365,21 +521,16 @@ public class Tetris extends Application {
 	                    new KeyFrame(Duration.seconds(2), new KeyValue(countdownText.textProperty(), String.valueOf(COUNTDOWN_FROM - 2))),
 	                    new KeyFrame(Duration.seconds(3), new KeyValue(countdownText.textProperty(), "")));
 	            		countdownTimeline.setOnFinished(finishedEvent -> {
+	            			gamePane.getChildren().add(gameBoard.getBoardPane());
+	            			gamePane.getChildren().add(pauseButton);
+	            			mediaPlayerMenu.stop();
+	        	        	isMainMenu = false;
+	        	        	mp1.play();
 	            			primaryStage.setScene(gameScene);
 	            			gameLoop.start();	
 	            		});
 	            countdownTimeline.play();
 	        	});
-	        
-	        newGame.setOnMousePressed(event ->{
-	        	gamePane.getChildren().add(gameBoard.getBoardPane());
-    			gamePane.getChildren().add(pauseButton);
-    			//primaryStage.setScene(gameScene);
-    			mediaPlayerMenu.stop();
-    			//gameLoop.start();	
-	        	isMainMenu = false;
-	        	mp1.play();
-	        });
 	        newGame.setOnMouseEntered(event ->{
 	        	MediaPlayer mediaPlayer4 = new MediaPlayer(sound);
 	        	mediaPlayer4.play();
@@ -387,28 +538,58 @@ public class Tetris extends Application {
 	        
 	        
 	        Button loadGame = new Button("Load Game");
-	        loadGame.setOnMousePressed(event ->{
-	        	GameData gameData = new GameData(gameBoard.getPoints_Collection());
+	        
+	        loadGame.setOnAction(event -> {
 	        	
+	        	//prep the countdown scene
+	            Text countdownText = new Text(String.valueOf(COUNTDOWN_FROM));
+	            countdownText.setFont(titleFont);
+	            countdownText.setFill(Color.GHOSTWHITE);
+	            countdownText.setEffect(glowCD);
+	            StackPane countdownPane = new StackPane(countdownText);
+	            countdownPane.setBackground(background);
+	            Scene countdownScene = new Scene(countdownPane, 500, 575);
+	            mediaPlayerMenu.stop();
+	            primaryStage.setScene(countdownScene);
+	            
+	            //prep the game scene
+	            GameData gameData = new GameData(gameBoard.getPoints_Collection(),gameBoard.getScore());
 				gameData.loadGameProgress();
-				
+				gameBoard.setScore(gameData.getScore());
 				for(SerializableRectangle rect : gameData.getSavedData()) { 
 					gameBoard.getPoints_Collection().add(rect.toRectangle());
 					System.out.println(rect.getColor());
 				}
-				
 				for(Rectangle rect : gameBoard.getPoints_Collection()) {
 					blocksGroup.getChildren().add(rect);
 				}
 				
+    			mediaPlayerMenu.stop();
+	        	isMainMenu = false;
 	            MediaPlayer mp2 = new MediaPlayer(sound1);
 	        	mp2.play();
-	        });
-	        
+
+	            Timeline countdownTimeline = new Timeline();
+	            countdownTimeline.getKeyFrames().addAll(
+	                    new KeyFrame(Duration.ZERO, new KeyValue(countdownText.textProperty(), String.valueOf(COUNTDOWN_FROM))),         
+	                    new KeyFrame(Duration.seconds(1), new KeyValue(countdownText.textProperty(), String.valueOf(COUNTDOWN_FROM - 1))),
+	                    new KeyFrame(Duration.seconds(2), new KeyValue(countdownText.textProperty(), String.valueOf(COUNTDOWN_FROM - 2))),
+	                    new KeyFrame(Duration.seconds(3), new KeyValue(countdownText.textProperty(), "")));
+	            		countdownTimeline.setOnFinished(finishedEvent -> {
+	            			gamePane.getChildren().add(gameBoard.getBoardPane());
+	            			gamePane.getChildren().add(pauseButton);
+	            			mediaPlayerMenu.stop();
+	        	        	isMainMenu = false;
+	        	        	mp1.play();
+	            			primaryStage.setScene(gameScene);
+	            			gameLoop.start();	
+	            		});
+	            countdownTimeline.play();
+	        	});
 	        loadGame.setOnMouseEntered(event ->{
 	        	MediaPlayer mediaPlayer5 = new MediaPlayer(sound);
 	        	mediaPlayer5.play();
-	        }); 
+	        });
 	        
 	        
 	        Button quit = new Button("Quit");
@@ -440,6 +621,8 @@ public class Tetris extends Application {
 	            }
 	        });
 	        
+	       
+	    
 	        mediaPlayerMenu.setCycleCount(MediaPlayer.INDEFINITE);
 			mediaPlayerMenu.play();
 			node.setBackground(background);
@@ -467,20 +650,28 @@ public class Tetris extends Application {
     	 * 5 = T
     	 * 6 = Z
     	 */
+    	Color neonCyan = Color.rgb(0, 255, 255);
+    	Color neonBlue = Color.rgb(0, 102, 204);
+    	Color neonOrange = Color.rgb(255, 140, 0);
+    	Color neonYellow = Color.rgb(255, 255, 0);
+    	Color neonGreen = Color.rgb(57, 255, 20);
+    	Color neonPink = Color.rgb(255, 105, 180);
+    	Color neonRed = Color.rgb(255, 62, 62);
 
         final Tetromino[] POSSIBLE_SHAPES = {
-                new TetrominoI(Color.CYAN, gameBoard),
-                new TetrominoJ(Color.BLUE, gameBoard),
-                new TetrominoL(Color.ORANGE, gameBoard),
-                new TetrominoO(Color.YELLOW, gameBoard),
-                new TetrominoS(Color.LIMEGREEN, gameBoard),
-                new TetrominoT(Color.PINK, gameBoard),
-                new TetrominoZ(Color.RED, gameBoard)
+                new TetrominoI(neonCyan, gameBoard),
+                new TetrominoJ(neonBlue, gameBoard),
+                new TetrominoL(neonOrange, gameBoard),
+                new TetrominoO(neonYellow, gameBoard),
+                new TetrominoS(neonGreen, gameBoard),
+                new TetrominoT(neonPink, gameBoard),
+                new TetrominoZ(neonRed, gameBoard)
         };
 
         Random random = new Random();
 
         int index = random.nextInt(POSSIBLE_SHAPES.length);
+        
 
         switch(index) {
         case 0:

@@ -3,7 +3,11 @@ package application;
 import java.util.ArrayList;
 
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeType;
 
 //Tetromino provides a template to each unique shape
 //Each shape will have their own unique rotation and color
@@ -25,7 +29,22 @@ public abstract class Tetromino {
 	        b = new Rectangle(0, 0, Tetris.BLOCK_SIZE, Tetris.BLOCK_SIZE);
 	        c = new Rectangle(0, 0, Tetris.BLOCK_SIZE, Tetris.BLOCK_SIZE);
 	        d = new Rectangle(0, 0, Tetris.BLOCK_SIZE, Tetris.BLOCK_SIZE);
-
+	        
+	        a.setStroke(Color.BLACK);
+	        b.setStroke(Color.BLACK);
+	        c.setStroke(Color.BLACK);
+	        d.setStroke(Color.BLACK);
+	        
+	        a.setStrokeType(StrokeType.INSIDE);
+	        b.setStrokeType(StrokeType.INSIDE);
+	        c.setStrokeType(StrokeType.INSIDE);
+	        d.setStrokeType(StrokeType.INSIDE);
+	      
+	        a.setStrokeWidth(2);
+	        b.setStrokeWidth(2);
+	        c.setStrokeWidth(2);
+	        d.setStrokeWidth(2);
+	        
 	        Points.add(a);
 	        Points.add(b);
 	        Points.add(c);
