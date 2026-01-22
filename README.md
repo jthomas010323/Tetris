@@ -24,7 +24,7 @@ This project recreates the classic Tetris game with a modern user interface, smo
 - Focused on **user experience and interaction design**
 
 ## ▶️ Demo
-Demo Video: [*(add YouTube / Drive link here)*](https://www.youtube.com/watch?v=O8ReqqipI6I)
+[*Demo Video*](https://www.youtube.com/watch?v=O8ReqqipI6I)
 
 ## 🚀 How to Run
 1. Clone the repository
